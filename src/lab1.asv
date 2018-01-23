@@ -61,8 +61,7 @@ for k = viaPts
     returnPacket = pp.command(SERV_ID, packet);
     toc %What does this do? --> ends the timer started by tic
     
-    %adds the returned data to the temporary matrix as a row instead of a
-    %column (list)
+    %adds the returned data to the temporary matrix as a row
     m(k,:) = returnPacket.';
     
     if DEBUG
