@@ -56,7 +56,6 @@ m = zeros(size(viaPts,2),15);
 m(:,:) = 1;
 counter = 0;
 time = zeros(1, numRows);
-sumTime = 0;
 tic % What does this do? --> starts an elapse timer
 
 % Iterate through a sine wave for joint values
@@ -70,14 +69,10 @@ for k = viaPts
     returnPacket = pp.command(SERV_ID, packet);
     
     %records the elapsed time since tic
-    elapsedTime = toc;
+    time(1,count+1) = toc;
     
     %displays the elapsed time since tic
-    toc 
-    
-    %stores the time that the measurment took place
-    sumTime = sumTime + elapsedTime;
-    time(1,k) = sumTime;
+    toc
     
     %adds the returned data to the temporary matrix as a row instead of a
     %column (list)
