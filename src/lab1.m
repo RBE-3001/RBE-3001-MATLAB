@@ -44,7 +44,7 @@ viaPts = [0, 0, 0, 0, 0, 0];
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
 %data elements (9)
-m = zeros(size(viaPts,2),9);
+m = zeros(size(viaPts,2),15);
 
 tic % What does this do? --> starts an elapse timer
 
