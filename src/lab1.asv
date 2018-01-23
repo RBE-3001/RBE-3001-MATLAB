@@ -35,9 +35,6 @@ packet = zeros(15, 1, 'single');
 % The following code generates a sinusoidal trajectory to be
 % executed on joint 1 of the arm and iteratively sends the list of
 % setpoints to the Nucleo firmware. 
-
-%viaPts = [0, -400, 0, 400, 0, -400, 0];
-
 numRows = 100;
 viaPts = zeros(numRows,1);
 
@@ -103,9 +100,7 @@ if DEBUG
 end
 
 %writes a .csv file for just the arm angle
-degreesPerTics = 45/400;
-baseJointAngles = m(:,1)*degreesPerTics.';
-csvwrite('baseJointAngle.csv', time);
+baseJointAngles = m(:,1).';
 csvwrite('baseJointAngle.csv', baseJointAngles);
 
 %plots the base joint angle over time
