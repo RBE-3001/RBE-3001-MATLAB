@@ -40,9 +40,9 @@ packet = zeros(15, 1, 'single');
 
 numRows = 100;
 viaPts(1:numRows) = 0;
-for j = 1:2:numRows
+for j = 1:20:numRows
     disp(j)
-    viaPts(1,j) = 400;
+    viaPts(1,j:j+10) = 400;
 end
 
 % the following is a null trajectory of five positions so that there will
