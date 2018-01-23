@@ -35,11 +35,11 @@ packet = zeros(15, 1, 'single');
 % The following code generates a sinusoidal trajectory to be
 % executed on joint 1 of the arm and iteratively sends the list of
 % setpoints to the Nucleo firmware. 
-%viaPts = [0, -400, 400, -400, 400, 0];
+viaPts = [-400, 400, 0];
 
 % the following is a null trajectory of five positions so that there will
 % be five sets of arm data replyed to the status request
-viaPts = [0, 0, 0, 0, 0, 0];
+%viaPts = [0, 0, 0, 0, 0, 0];
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
