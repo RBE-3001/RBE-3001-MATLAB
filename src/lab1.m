@@ -69,7 +69,7 @@ for k = viaPts
     returnPacket = pp.command(SERV_ID, packet);
     
     %records the elapsed time since tic
-    time(1,count+1) = toc;
+    time(1,counter+1) = toc;
     
     %displays the elapsed time since tic
     toc
