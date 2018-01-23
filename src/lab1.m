@@ -46,7 +46,7 @@ viaPts = [0, 0, 0, 0, 0, 0];
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
 %data elements (9)
-m = zero(size(viaPts),9);
+m = zeros(size(viaPts,2),9);
 
 tic % What does this do? --> starts an elapse timer
 
@@ -63,7 +63,7 @@ for k = viaPts
     
     %adds the returned data to the temporary matrix as a row instead of a
     %column (list)
-    m(k,:) = returnPacket.';
+    m(k,:) = returnPacket;
     
     if DEBUG
         disp('Sent Packet:');
