@@ -35,16 +35,18 @@ packet = zeros(15, 1, 'single');
 % The following code generates a sinusoidal trajectory to be
 % executed on joint 1 of the arm and iteratively sends the list of
 % setpoints to the Nucleo firmware. 
-%viaPts = [0, -400, 400, -400, 400, 0];
+viaPts = [0, -400, 400, -400, 400, 0];
 
 % the following is a null trajectory of five positions so that there will
 % be five sets of arm data replyed to the status request
-viaPts = [0, 0, 0, 0, 0, 0];
+%viaPts = [0, 0, 0, 0, 0, 0];
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
-%data elements (9)
+%data elements (15)
 m = zeros(size(viaPts,2),15);
+%m(:,:) = 1;
+counter = 0;
 
 tic % What does this do? --> starts an elapse timer
 
@@ -61,8 +63,8 @@ for k = viaPts
     
     %adds the returned data to the temporary matrix as a row instead of a
     %column (list)
-    m(k+1,:) = returnPacket;
-    
+    m(counter+1,:) = returnPacket;
+    counter = counter + 1;
     if DEBUG
         disp('Sent Packet:');
         disp(packet);
@@ -81,7 +83,7 @@ end
 %displays the data inside the .csv file
 if DEBUG
     %reads .csv file and stores contents in a temporary matrix
-    M = csvread(armData.csv);
+    M = csvread('armData.csv');
     %displays the matrix of the data in the .csv file
     disp('Matlab wrote:');
     disp(M);
