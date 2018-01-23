@@ -36,7 +36,11 @@ packet = zeros(15, 1, 'single');
 % executed on joint 1 of the arm and iteratively sends the list of
 % setpoints to the Nucleo firmware. 
 numRows = 100;
-viaPts = zeros(numRows,1);
+viaPts(1:numRows) = 0;
+for j = 1:2:numRows
+    disp(j)
+    viaPts(1,j) = 400;
+end
 
 % the following is a null trajectory of five positions so that there will
 % be five sets of arm data replyed to the status request
