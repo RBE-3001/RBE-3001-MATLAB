@@ -35,6 +35,9 @@ packet = zeros(15, 1, 'single');
 % The following code generates a sinusoidal trajectory to be
 % executed on joint 1 of the arm and iteratively sends the list of
 % setpoints to the Nucleo firmware. 
+
+%viaPts = [0, -400, 0, 400, 0, -400, 0];
+
 numRows = 100;
 viaPts(1:numRows) = 0;
 for j = 1:2:numRows
