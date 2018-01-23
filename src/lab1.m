@@ -22,10 +22,8 @@ import java.lang.*;
 
 % Create a PacketProcessor object to send data to the nucleo firmware
 pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?
-SERV_ID = 37;            % we will be talking to server ID 37 on
+SERV_ID = 30;            % we will be talking to server ID 37 on
                          % the Nucleo
-                         % ***************This ID # needs to be changed to
-                         % whatever the new server ID is******************
 
 DEBUG   = true;          % enables/disables debug prints
 
@@ -63,7 +61,7 @@ for k = viaPts
     
     %adds the returned data to the temporary matrix as a row instead of a
     %column (list)
-    m(k,:) = returnPacket;
+    m(k+1,:) = returnPacket;
     
     if DEBUG
         disp('Sent Packet:');
@@ -76,8 +74,8 @@ for k = viaPts
 end
 
 %writes the temporary matrix data to a .csv file
-for row = 0:size(m,1)
-    csvwrite('armData.csv',m,0,row);
+for row = 1:size(m,1)
+    csvwrite('armData.csv',m,1,row);
 end
 
 %displays the data inside the .csv file
