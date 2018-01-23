@@ -100,7 +100,8 @@ if DEBUG
 end
 
 %writes a .csv file for just the arm angle
-baseJointAngles = m(:,1).';
+degreesPerTics = 45/400;
+baseJointAngles = m(:,1)*degreesPerTics.';
 csvwrite('baseJointAngle.csv', time);
 csvwrite('baseJointAngle.csv', baseJointAngles);
 
