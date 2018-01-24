@@ -11,7 +11,7 @@
 % IMPORTANT - understanding the code below requires being familiar
 % with the Nucleo firmware. Read that code first.
 
-clr;
+close all; clc; clear;
 
 javaaddpath('../    lib/hid4java-0.5.1.jar');
 
@@ -111,11 +111,12 @@ csvwrite('baseJointAngle.csv', baseJointAngles);
 
 %plots the base joint angle over time
 figure('Position', [50, 50, 864, 864], 'Color', 'w');
+plot(time,baseJointAngles,'r-x')
 title('RBE 3001 Lab 1: Base Joint Angle vs. Time');
 xlabel('Time (s)');
 ylabel('Base Joint Angle (degrees)');
 grid on;
-plot(time,baseJointAngles,'r-x')
+
 
 %displays the data inside the .csv file
 if DEBUG
