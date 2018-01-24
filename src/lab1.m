@@ -19,7 +19,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.lang.*;
 
-
 % Create a PacketProcessor object to send data to the nucleo firmware
 pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?
 SERV_ID = 30;            % we will be talking to server ID 37 on
@@ -31,6 +30,11 @@ DEBUG   = true;          % enables/disables debug prints
 % bytes for this purpose. Recall that the HID interface supports
 % packet sizes up to 64 bytes.
 packet = zeros(15, 1, 'single');
+
+PID_Serv_ID = 65;
+%PID for joint one
+packet(1:3) = [0.005,0.003,0.003];
+pp.command(PID_Serv_ID,packet);
 
 % The following code generates a sinusoidal trajectory to be
 % executed on joint 1 of the arm and iteratively sends the list of
@@ -86,7 +90,7 @@ for k = viaPts
         disp(returnPacket);
     end
     
-    pause(1) %timeit(returnPacket) !FIXME why is this needed?
+    pause(.1) %timeit(returnPacket) !FIXME why is this needed?
 end
 
 %writes the temporary matrix data to a .csv file
@@ -109,10 +113,10 @@ csvwrite('baseJointAngle.csv', baseJointAngles);
 
 %plots the base joint angle over time
 figure
-plot(time,baseJointAngles, 'Color',[255,0,0])
 title('RBE 3001 Lab 1: Base Joint Angle vs. Time')
 xlabel('Time (s)')
 ylabel('Base Joint Angle (degrees)')
+plot(time,baseJointAngles,'r-*')
 
 %displays the data inside the .csv file
 if DEBUG
