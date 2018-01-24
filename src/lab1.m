@@ -1,13 +1,13 @@
 %%
-% RBE3001 - Laboratory 1 
-% 
+% RBE3001 - Laboratory 1
+%
 % Instructions
 % ------------
 % Welcome again! This MATLAB script is your starting point for Lab
 % 1 of RBE3001. The sample code below demonstrates how to establish
 % communication between this script and the Nucleo firmware, send
 % setpoint commands and receive sensor data.
-% 
+%
 % IMPORTANT - understanding the code below requires being familiar
 % with the Nucleo firmware. Read that code first.
 
@@ -35,7 +35,7 @@ packet = zeros(15, 1, 'single');
 
 % The following code generates a sinusoidal trajectory to be
 % executed on joint 1 of the arm and iteratively sends the list of
-% setpoints to the Nucleo firmware. 
+% setpoints to the Nucleo firmware.
 
 %viaPts = [0, -400, 0, 400, 0, -400, 0];
 
@@ -58,36 +58,36 @@ m = zeros(size(viaPts,2),15);
 m(:,:) = 1;
 counter = 0;
 time = zeros(1, numRows);
-tic % What does this do? --> starts an elapse timer
+tic % Starts an elapse timer
 
 % Iterate through a sine wave for joint values
 for k = viaPts
     %incremtal = (single(k) / sinWaveInc);
-    
+
     packet(1) = k;
-    
-    
+
+
     % Send packet to the server and get the response
     returnPacket = pp.command(SERV_ID, packet);
-    
+
     %records the elapsed time since tic
     time(1,counter+1) = toc;
-    
-    %displays the elapsed time since tic
+
+    %records the elapsed time since tic
     toc
-    
+
     %adds the returned data to the temporary matrix as a row instead of a
     %column (list)
     m(counter+1,:) = returnPacket;
     counter = counter + 1;
-    
+
     if DEBUG
         disp('Sent Packet:');
         disp(packet);
         disp('Received Packet:');
         disp(returnPacket);
     end
-    
+
     pause(0.01) %timeit(returnPacket) !FIXME why is this needed?
 end
 
