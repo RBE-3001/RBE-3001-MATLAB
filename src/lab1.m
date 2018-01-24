@@ -31,22 +31,18 @@ DEBUG   = true;          % enables/disables debug prints
 % packet sizes up to 64 bytes.
 packet = zeros(15, 1, 'single');
 
-PID_Serv_ID = 65;
-%PID for joint one
-packet(1:3) = [0.005,0.003,0.003];
-pp.command(PID_Serv_ID,packet);
-
 % The following code generates a sinusoidal trajectory to be
 % executed on joint 1 of the arm and iteratively sends the list of
 % setpoints to the Nucleo firmware. 
 
 %viaPts = [0, -400, 0, 400, 0, -400, 0];
 
-numRows = 100;
+numRows = 40;
+holdSize = 10;
 viaPts(1:numRows) = 0;
-for j = 1:20:numRows
+for j = 1:holdSize*2:numRows
     disp(j)
-    viaPts(1,j:j+10) = 400;
+    viaPts(1,j:j+holdSize) = 400;
 end
 
 % the following is a null trajectory of five positions so that there will
