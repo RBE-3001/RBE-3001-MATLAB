@@ -90,11 +90,7 @@ for k = viaPts
         disp(returnPacket);
     end
     
-<<<<<<< HEAD
-    pause(.1) %timeit(returnPacket) !FIXME why is this needed?
-=======
     pause(0.01) %timeit(returnPacket) !FIXME why is this needed?
->>>>>>> 977a42431f45e6f8c916338161e85445795ec611
 end
 
 %writes the temporary matrix data to a .csv file
@@ -120,7 +116,7 @@ figure
 title('RBE 3001 Lab 1: Base Joint Angle vs. Time')
 xlabel('Time (s)')
 ylabel('Base Joint Angle (degrees)')
-plot(time,baseJointAngles,'r-*')
+plot(time,baseJointAngles,'r-x')
 
 %displays the data inside the .csv file
 if DEBUG
