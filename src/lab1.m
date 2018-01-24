@@ -90,7 +90,11 @@ for k = viaPts
         disp(returnPacket);
     end
     
+<<<<<<< HEAD
     pause(.1) %timeit(returnPacket) !FIXME why is this needed?
+=======
+    pause(0.01) %timeit(returnPacket) !FIXME why is this needed?
+>>>>>>> 977a42431f45e6f8c916338161e85445795ec611
 end
 
 %writes the temporary matrix data to a .csv file
