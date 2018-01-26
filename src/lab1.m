@@ -39,17 +39,25 @@ packet = zeros(15, 1, 'single');
 
 %viaPts = [0, -400, 0, 400, 0, -400, 0];
 
-numRows = 40;
+
+% the following is a null trajectory of five positions so that there will
+% be five sets of arm data replyed to the status request
+%viaPts = [0, 0, 0, 0, 0, 0];
+
+%The following code generates a repeating trajectory for collecting step response
+%data; the trajectory is between two points 45 degrees apart
+%{
+numRepeats = 2;
 holdSize = 10;
+numRows = numRepeats*holdSize*2;
 viaPts(1:numRows) = 0;
 for j = 1:holdSize*2:numRows
     disp(j)
     viaPts(1,j:j+holdSize) = 400;
 end
+%}
 
-% the following is a null trajectory of five positions so that there will
-% be five sets of arm data replyed to the status request
-%viaPts = [0, 0, 0, 0, 0, 0];
+%
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
@@ -65,6 +73,8 @@ for k = viaPts
     %incremtal = (single(k) / sinWaveInc);
     
     packet(1) = k;
+    packet(2) = ;
+    Packet(3) = ;
     
     
     % Send packet to the server and get the response

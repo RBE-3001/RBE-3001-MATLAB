@@ -11,7 +11,7 @@
 % IMPORTANT - understanding the code below requires being familiar
 % with the Nucleo firmware. Read that code first.
 
-clr;
+close all; clc; clear;
 
 javaaddpath('../    lib/hid4java-0.5.1.jar');
 
@@ -26,7 +26,7 @@ pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?
 SERV_ID = 30;            % we will be talking to server ID 37 on
                          % the Nucleo
 
-DEBUG   = true;          % enables/disables debug prints
+DEBUG   = false;          % enables/disables debug prints
 
 % Instantiate a packet - the following instruction allocates 64
 % bytes for this purpose. Recall that the HID interface supports
@@ -39,48 +39,66 @@ packet = zeros(15, 1, 'single');
 
 %viaPts = [0, -400, 0, 400, 0, -400, 0];
 
-numRows = 40;
+
+% the following is a null trajectory of five positions so that there will
+% be five sets of arm data replyed to the status request
+%viaPts = [0, 0, 0, 0, 0, 0];
+
+%The following code generates a repeating trajectory for collecting step response
+%data; the trajectory is between two points 45 degrees apart
+%{
+numRepeats = 2;
 holdSize = 10;
+numRows = numRepeats*holdSize*2;
 viaPts(1:numRows) = 0;
 for j = 1:holdSize*2:numRows
     disp(j)
     viaPts(1,j:j+holdSize) = 400;
 end
+%}
 
-% the following is a null trajectory of five positions so that there will
-% be five sets of arm data replyed to the status request
-%viaPts = [0, 0, 0, 0, 0, 0];
+%creates a full trajectory with set-points for each joint
+viaPts = zeros(3,6);
+ViaPts(1,:) = [ 0, 400, 400, 400, -400, 0]; %base joint
+ViaPts(2,:) = [ 0,   0, 400, 400, -400, 0]; %elbow joint
+ViaPts(3,:) = [ 0,   0,   0, 400, -400, 0]; %wrist joint
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
 %data elements (15)
 m = zeros(size(viaPts,2),15);
 m(:,:) = 1;
-counter = 0;
-time = zeros(1, numRows);
+time = zeros(1, size(viaPts,2));
+
 tic % What does this do? --> starts an elapse timer
 
-% Iterate through a sine wave for joint values
-for k = viaPts
+% Iterate through commands for joint values
+for k = 0:size(viaPts,2)
     %incremtal = (single(k) / sinWaveInc);
+   
+    %joint 1 set-point packet
+    packet(0) = ViaPts(1,k+1);
     
-    packet(1) = k;
+    %joint 2 set-point packet
+    packet(3) = ViaPts(2,k+1);
+    
+    %joint 3 set-point packet
+    Packet(6) = ViaPts(3,k+1);
     
     
     % Send packet to the server and get the response
     returnPacket = pp.command(SERV_ID, packet);
     
     %records the elapsed time since tic
-    time(1,counter+1) = toc;
+    time(1,k+1) = toc;
     
     %displays the elapsed time since tic
     toc
     
     %adds the returned data to the temporary matrix as a row instead of a
     %column (list)
-    m(counter+1,:) = returnPacket;
-    counter = counter + 1;
-    
+    m(k+1,:) = returnPacket;
+   
     if DEBUG
         disp('Sent Packet:');
         disp(packet);
@@ -110,12 +128,13 @@ csvwrite('baseJointAngle.csv', time);
 csvwrite('baseJointAngle.csv', baseJointAngles);
 
 %plots the base joint angle over time
-figure('Position', [0, 0, 1024, 1200], 'Color', 'w');
+figure('Position', [50, 50, 864, 864], 'Color', 'w');
+plot(time,baseJointAngles,'r-x')
 title('RBE 3001 Lab 1: Base Joint Angle vs. Time');
 xlabel('Time (s)');
 ylabel('Base Joint Angle (degrees)');
 grid on;
-plot(time,baseJointAngles,'r-x')
+
 
 %displays the data inside the .csv file
 if DEBUG
