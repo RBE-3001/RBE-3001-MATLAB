@@ -70,7 +70,7 @@ m = zeros(size(viaPts,2),15);
 m(:,:) = 1;
 time = zeros(1, size(viaPts,2));
 
-tic % What does this do? --> starts an elapse timer
+tic %starts an elapse timer
 
 % Iterate through commands for joint values
 for k = 0:size(viaPts,2)
@@ -92,8 +92,7 @@ for k = 0:size(viaPts,2)
     %records the elapsed time since tic
     time(1,k+1) = toc;
     
-    %displays the elapsed time since tic
-    toc
+    toc %displays the elapsed time since tic
     
     %adds the returned data to the temporary matrix as a row instead of a
     %column (list)
