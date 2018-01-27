@@ -59,9 +59,9 @@ end
 
 %creates a full trajectory with set-points for each joint
 viaPts = zeros(3,6);
-ViaPts(1,:) = [ 0, 400, 400, 400, -400, 0]; %base joint
-ViaPts(2,:) = [ 0,   0, 400, 400, -400, 0]; %elbow joint
-ViaPts(3,:) = [ 0,   0,   0, 400, -400, 0]; %wrist joint
+ViaPts(1,:) = [ 0, 0, 0, 0, 0, 0]; %base joint
+ViaPts(2,:) = [ 0,   0, 0, 0,  0, 0]; %elbow joint
+ViaPts(3,:) = [ 800,   800,   800, 800,  800, 800]; %wrist joint
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
@@ -73,30 +73,31 @@ time = zeros(1, size(viaPts,2));
 tic %starts an elapse timer
 
 % Iterate through commands for joint values
-for k = 0:size(viaPts,2)
+    %size(matrix_name, 1 (rows) or 2 (columns))
+for k = 1:size(viaPts,2)
     %incremtal = (single(k) / sinWaveInc);
    
     %joint 1 set-point packet
-    packet(0) = ViaPts(1,k+1);
+    packet(1) = ViaPts(1,k);
     
     %joint 2 set-point packet
-    packet(3) = ViaPts(2,k+1);
+    packet(4) = ViaPts(2,k);
     
     %joint 3 set-point packet
-    Packet(6) = ViaPts(3,k+1);
+    Packet(7) = ViaPts(3,k);
     
     
     % Send packet to the server and get the response
     returnPacket = pp.command(SERV_ID, packet);
     
     %records the elapsed time since tic
-    time(1,k+1) = toc;
+    time(1,k) = toc;
     
     toc %displays the elapsed time since tic
     
     %adds the returned data to the temporary matrix as a row instead of a
     %column (list)
-    m(k+1,:) = returnPacket;
+    m(k,:) = returnPacket;
    
     if DEBUG
         disp('Sent Packet:');
@@ -105,7 +106,7 @@ for k = 0:size(viaPts,2)
         disp(returnPacket);
     end
     
-    pause(0.01) %timeit(returnPacket) !FIXME why is this needed?
+    pause(1) %timeit(returnPacket) !FIXME why is this needed?
 end
 
 %writes the temporary matrix data to a .csv file
@@ -126,6 +127,7 @@ baseJointAngles = m(:,1)*degreesPerTics.';
 csvwrite('baseJointAngle.csv', time);
 csvwrite('baseJointAngle.csv', baseJointAngles);
 
+%{
 %plots the base joint angle over time
 figure('Position', [50, 50, 864, 864], 'Color', 'w');
 plot(time,baseJointAngles,'r-x')
@@ -133,7 +135,7 @@ title('RBE 3001 Lab 1: Base Joint Angle vs. Time');
 xlabel('Time (s)');
 ylabel('Base Joint Angle (degrees)');
 grid on;
-
+%}
 
 %displays the data inside the .csv file
 if DEBUG

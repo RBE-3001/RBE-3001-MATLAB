@@ -46,7 +46,7 @@ packet = zeros(15, 1, 'single');
 
 %The following code generates a repeating trajectory for collecting step response
 %data; the trajectory is between two points 45 degrees apart
-%{
+
 numRepeats = 2;
 holdSize = 10;
 numRows = numRepeats*holdSize*2;
@@ -55,7 +55,7 @@ for j = 1:holdSize*2:numRows
     disp(j)
     viaPts(1,j:j+holdSize) = 400;
 end
-%}
+
 
 %
 
@@ -73,9 +73,7 @@ for k = viaPts
     %incremtal = (single(k) / sinWaveInc);
     
     packet(1) = k;
-    packet(2) = ;
-    Packet(3) = ;
-    
+  
     
     % Send packet to the server and get the response
     returnPacket = pp.command(SERV_ID, packet);
