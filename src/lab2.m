@@ -28,6 +28,36 @@ SERV_ID = 37;            % we will be talking to server ID 37 on
 
 DEBUG   = false;          % enables/disables debug prints
 
+
+%Set up PID for the arm at the beginning of runtime
+%Server ID, see SERVER_ID in PidConfigServer.h in Nucleo code
+PID_SERVER_ID = 65;
+
+%PID values for the arm
+pidValues = [0.005 0 0 1 0;     %Base
+             0.005 0 0 1 0;     %Shoulder
+             0.005 0 0 1 0];    %Wrist
+
+pidPacket = zeros(15, 1, 'single');         
+         
+for a = 1:size(pidValues,2) 
+    
+     %joint 1 packet
+    pidPacket(1) = pidValues(1,a);
+    
+    %joint 2 packet
+    pidPacket(4) = pidValues(2,a);
+    
+    %joint 3 packet
+    pidPacket(7) = pidValues(3,a);
+    
+    % Send packet to the server
+    %pp.command(PID_SERVER_ID, pidPacket)
+    
+end
+
+
+
 % Instantiate a packet - the following instruction allocates 64
 % bytes for this purpose. Recall that the HID interface supports
 % packet sizes up to 64 bytes.
