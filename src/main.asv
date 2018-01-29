@@ -36,16 +36,16 @@ pidValues = [0.005, 0, 0, 1, 0;     %Base
 
 pidPacket = zeros(15, 1, 'single');         
          
-for a = 0:size(pidValues,2)-1 
+for a = 1:size(pidValues,2) 
     
      %joint 1 packet
-    pidPacket(a*3+1) = pidValues(1,a+1);
+    pidPacket(a) = pidValues(1,a);
     
     %joint 2 packet
-    pidPacket(a*3+2) = pidValues(2,a+1);
+    pidPacket(a*3) = pidValues(2,a);
     
     %joint 3 packet
-    pidPacket(a*3+3) = pidValues(3,a+1);
+    pidPacket(a*3+2) = pidValues(3,a);
     
     % Send packet to the server
     returnPIDPacket = pp.command(PID_SERVER_ID, pidPacket)
