@@ -89,9 +89,9 @@ end
 
 %creates a full trajectory with set-points for each joint
 viaPts = zeros(3,6);
-ViaPts(1,:) = [ 800, 0, 0, 0, 0, 0]; %base joint
-ViaPts(2,:) = [ 800,   0, 0, 0,  0, 0]; %elbow joint
-ViaPts(3,:) = [ 800,   0,   800, 0,  800, 0]; %wrist joint
+ViaPts(1,:) = [ 800, 0,   0, 0,   0, 0]; %base joint
+ViaPts(2,:) = [ 800, 0,   0, 0,   0, 0]; %elbow joint
+ViaPts(3,:) = [ 800, 0, 800, 0, 800, 0]; %wrist joint
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
