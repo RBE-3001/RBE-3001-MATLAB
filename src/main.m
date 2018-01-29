@@ -21,22 +21,18 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.lang.*;
 
-% Create a PacketProcessor object to send data to the nucleo firmware
-pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?
-SERV_ID = 37;            % we will be talking to server ID 37 on
-                         % the Nucleo
+pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 
 DEBUG   = false;          % enables/disables debug prints
-
 
 %Set up PID for the arm at the beginning of runtime
 %Server ID, see SERVER_ID in PidConfigServer.h in Nucleo code
 PID_SERVER_ID = 65;
 
 %PID values for the arm
-pidValues = [0.005 0 0 1 0;     %Base
-             0.005 0 0 1 0;     %Shoulder
-             0.005 0 0 1 0];    %Wrist
+pidValues = [0.005, 0, 0, 1, 0;     %Base
+             0.005, 0, 0, 1, 0;     %Shoulder
+             0.005, 0, 0, 1, 0];    %Wrist
 
 pidPacket = zeros(15, 1, 'single');         
          
@@ -52,11 +48,13 @@ for a = 1:size(pidValues,2)
     pidPacket(7) = pidValues(3,a);
     
     % Send packet to the server
-    %pp.command(PID_SERVER_ID, pidPacket)
+    returnPIDPacket = pp.command(PID_SERVER_ID, pidPacket)
     
 end
 
-
+% Create a PacketProcessor object to send data to the nucleo firmware
+SERV_ID = 37;            % we will be talking to server ID 37 on
+                         % the Nucleo
 
 % Instantiate a packet - the following instruction allocates 64
 % bytes for this purpose. Recall that the HID interface supports
@@ -89,8 +87,8 @@ end
 
 %creates a full trajectory with set-points for each joint
 viaPts = zeros(3,6);
-ViaPts(1,:) = [ 800, 0,   0, 0,   0, 0]; %base joint
-ViaPts(2,:) = [ 800, 0,   0, 0,   0, 0]; %elbow joint
+ViaPts(1,:) = [ 800, 400,   0, -400,   0, 0]; %base joint
+ViaPts(2,:) = [ 800, 00,   00, 00,   00, 50]; %elbow joint
 ViaPts(3,:) = [ 800, 0, 800, 0, 800, 0]; %wrist joint
 
 %initialize our temporary matrix to store data to be written to the .csv in
