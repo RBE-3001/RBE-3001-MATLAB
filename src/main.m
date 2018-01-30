@@ -52,7 +52,9 @@ end
     returnPIDPacket = pp.command(PID_SERVER_ID, pidPacket)
 %}
 % Create a PacketProcessor object to send data to the nucleo firmware
-SERV_ID = 37;            % we will be talking to server ID 37 on
+
+pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?
+SERV_ID = 30;            % we will be talking to server ID 37 on
                          % the Nucleo
 
 % Instantiate a packet - the following instruction allocates 64
@@ -86,9 +88,11 @@ end
 
 %creates a full trajectory with set-points for each joint
 viaPts = zeros(3,6);
-ViaPts(1,:) = [ 800, 400,   0, -400,   0, 0]; %base joint
-ViaPts(2,:) = [ 800, 0,   0, 0,   0, 50]; %elbow joint
-ViaPts(3,:) = [ 800, 0, 800, 0, 800, 0]; %wrist joint
+
+ViaPts(1,:) = [ 0, 0, 0, 0, 0, 0]; %base joint
+ViaPts(2,:) = [ 0,   0, 0, 0,  0, 0]; %elbow joint
+ViaPts(3,:) = [ 800,   800,   800, 800,  800, 800]; %wrist joint
+
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
@@ -111,7 +115,7 @@ for k = 1:size(viaPts,2)
     packet(4) = ViaPts(2,k);
     
     %joint 3 set-point packet
-    packet(7) = ViaPts(3,k);
+    Packet(7) = ViaPts(3,k);
     
     
     % Send packet to the server and get the response
