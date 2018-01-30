@@ -13,6 +13,8 @@ import java.lang.*;
 pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 
 DEBUG   = false;          % enables/disables debug prints
+PLOT    = true;           % enables/diables plotting
+degreesPerTics = 45/400;   %calibrates the degrees per encoder tic
 
 %Set up PID for the arm at the beginning of runtime
 %Server ID, see SERVER_ID in PidConfigServer.h in Nucleo code
@@ -84,7 +86,7 @@ ViaPts(3,:) = [ 800, 0, 800, 0, 800, 0]; %wrist joint
 %a matrix the size of the number of setpoints by the number of returned
 %data elements (15)
 m = zeros(size(viaPts,2),15);
-m(:,:) = 1;
+m(:,:) = 0;
 time = zeros(1, size(viaPts,2));
 
 tic %starts an elapse timer
@@ -138,21 +140,24 @@ if DEBUG
     disp(M);
 end
 
-%writes a .csv file for just the arm angle
-degreesPerTics = 45/400;
-baseJointAngles = m(:,1)*degreesPerTics.';
-csvwrite('baseJointAngle.csv', time);
-csvwrite('baseJointAngle.csv', baseJointAngles);
+%writes a .csv file for just the arm angles
+Joint1Angles = m(:,1)*degreesPerTics.';
+Joint2Angles = m(:,4)*degreesPerTics.';
+Joint3Angles = m(:,7)*degreesPerTics.';
+csvwrite('JointAngle.csv', time);
+csvwrite('JointAngle.csv', Joint1Angles);
+csvwrite('JointAngle.csv', Joint2Angles);
+csvwrite('JointAngle.csv', Joint3Angles);
 
-%{
-%plots the base joint angle over time
-figure('Position', [50, 50, 864, 864], 'Color', 'w');
-plot(time,baseJointAngles,'r-x')
-title('RBE 3001 Lab 1: Base Joint Angle vs. Time');
-xlabel('Time (s)');
-ylabel('Base Joint Angle (degrees)');
-grid on;
-%}
+if PLOT
+    %plots the base joint angle over time
+    figure('Position', [50, 50, 864, 864], 'Color', 'w');
+    plot(time,baseJointAngles,'r-x')
+    title('RBE 3001 Lab 1: Base Joint Angle vs. Time');
+    xlabel('Time (s)');
+    ylabel('Base Joint Angle (degrees)');
+    grid on;
+end
 
 %displays the data inside the .csv file
 if DEBUG
