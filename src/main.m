@@ -21,12 +21,39 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.lang.*;
 
-% Create a PacketProcessor object to send data to the nucleo firmware
-pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?
-SERV_ID = 30;            % we will be talking to server ID 37 on
-                         % the Nucleo
+pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 
 DEBUG   = true;          % enables/disables debug prints
+
+%Set up PID for the arm at the beginning of runtime
+%Server ID, see SERVER_ID in PidConfigServer.h in Nucleo code
+PID_SERVER_ID = 65;
+%{
+%PID values for the arm
+pidValues = [0.005, 0, 0, 1, 0;     %Base
+             0.005, 0, 0, 1, 0;     %Shoulder
+             0.005, 0, 0, 1, 0];    %Wrist
+
+pidPacket = zeros(15, 1, 'single');         
+         
+for a = 0:size(pidValues,2)-1 
+    
+     %joint 1 packet
+    pidPacket(a*3+1) = pidValues(1,a+1);
+    
+    %joint 2 packet
+    pidPacket(a*3+2) = pidValues(2,a+1);
+    
+    %joint 3 packet
+    pidPacket(a*3+3) = pidValues(3,a+1);
+end
+
+    % Send packet to the server
+    returnPIDPacket = pp.command(PID_SERVER_ID, pidPacket)
+%}
+% Create a PacketProcessor object to send data to the nucleo firmware
+SERV_ID = 37;            % we will be talking to server ID 37 on
+                         % the Nucleo
 
 % Instantiate a packet - the following instruction allocates 64
 % bytes for this purpose. Recall that the HID interface supports
@@ -46,7 +73,7 @@ packet = zeros(15, 1, 'single');
 
 %The following code generates a repeating trajectory for collecting step response
 %data; the trajectory is between two points 45 degrees apart
-
+%{
 numRepeats = 2;
 holdSize = 10;
 numRows = numRepeats*holdSize*2;
@@ -55,40 +82,50 @@ for j = 1:holdSize*2:numRows
     disp(j)
     viaPts(1,j:j+holdSize) = 400;
 end
+%}
 
-
-%
+%creates a full trajectory with set-points for each joint
+viaPts = zeros(3,6);
+ViaPts(1,:) = [ 800, 400,   0, -400,   0, 0]; %base joint
+ViaPts(2,:) = [ 800, 0,   0, 0,   0, 50]; %elbow joint
+ViaPts(3,:) = [ 800, 0, 800, 0, 800, 0]; %wrist joint
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
 %data elements (15)
 m = zeros(size(viaPts,2),15);
 m(:,:) = 1;
-counter = 0;
-time = zeros(1, numRows);
-tic % What does this do? --> starts an elapse timer
+time = zeros(1, size(viaPts,2));
 
-% Iterate through a sine wave for joint values
-for k = viaPts
+tic %starts an elapse timer
+
+% Iterate through commands for joint values
+    %size(matrix_name, 1 (rows) or 2 (columns))
+for k = 1:size(viaPts,2)
     %incremtal = (single(k) / sinWaveInc);
+   
+    %joint 1 set-point packet
+    packet(1) = ViaPts(1,k);
     
-    packet(1) = k;
-  
+    %joint 2 set-point packet
+    packet(4) = ViaPts(2,k);
+    
+    %joint 3 set-point packet
+    packet(7) = ViaPts(3,k);
+    
     
     % Send packet to the server and get the response
     returnPacket = pp.command(SERV_ID, packet);
     
     %records the elapsed time since tic
-    time(1,counter+1) = toc;
+    time(1,k) = toc;
     
-    %displays the elapsed time since tic
-    toc
+    toc %displays the elapsed time since tic
     
     %adds the returned data to the temporary matrix as a row instead of a
     %column (list)
-    m(counter+1,:) = returnPacket;
-    counter = counter + 1;
-    
+    m(k,:) = returnPacket;
+   
     if DEBUG
         disp('Sent Packet:');
         disp(packet);
@@ -96,7 +133,7 @@ for k = viaPts
         disp(returnPacket);
     end
     
-    pause(0.01) %timeit(returnPacket) !FIXME why is this needed?
+    pause(1) %timeit(returnPacket) !FIXME why is this needed?
 end
 
 %writes the temporary matrix data to a .csv file
@@ -117,6 +154,7 @@ baseJointAngles = m(:,1)*degreesPerTics.';
 csvwrite('baseJointAngle.csv', time);
 csvwrite('baseJointAngle.csv', baseJointAngles);
 
+%{
 %plots the base joint angle over time
 figure('Position', [50, 50, 864, 864], 'Color', 'w');
 plot(time,baseJointAngles,'r-x')
@@ -124,7 +162,7 @@ title('RBE 3001 Lab 1: Base Joint Angle vs. Time');
 xlabel('Time (s)');
 ylabel('Base Joint Angle (degrees)');
 grid on;
-
+%}
 
 %displays the data inside the .csv file
 if DEBUG
