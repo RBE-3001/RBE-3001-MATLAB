@@ -21,41 +21,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.lang.*;
 
-pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
-
-DEBUG   = true;          % enables/disables debug prints
-
-%Set up PID for the arm at the beginning of runtime
-%Server ID, see SERVER_ID in PidConfigServer.h in Nucleo code
-PID_SERVER_ID = 65;
-%{
-%PID values for the arm
-pidValues = [0.005, 0, 0, 1, 0;     %Base
-             0.005, 0, 0, 1, 0;     %Shoulder
-             0.005, 0, 0, 1, 0];    %Wrist
-
-pidPacket = zeros(15, 1, 'single');         
-         
-for a = 0:size(pidValues,2)-1 
-    
-     %joint 1 packet
-    pidPacket(a*3+1) = pidValues(1,a+1);
-    
-    %joint 2 packet
-    pidPacket(a*3+2) = pidValues(2,a+1);
-    
-    %joint 3 packet
-    pidPacket(a*3+3) = pidValues(3,a+1);
-end
-
-    % Send packet to the server
-    returnPIDPacket = pp.command(PID_SERVER_ID, pidPacket)
-%}
 % Create a PacketProcessor object to send data to the nucleo firmware
-
 pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?
-SERV_ID = 30;            % we will be talking to server ID 37 on
+SERV_ID = 37;            % we will be talking to server ID 37 on
                          % the Nucleo
+
+DEBUG   = false;          % enables/disables debug prints
 
 % Instantiate a packet - the following instruction allocates 64
 % bytes for this purpose. Recall that the HID interface supports
@@ -88,11 +59,9 @@ end
 
 %creates a full trajectory with set-points for each joint
 viaPts = zeros(3,6);
-
-ViaPts(1,:) = [ 0, 0, 0, 0, 0, 0]; %base joint
-ViaPts(2,:) = [ 0,   0, 0, 0,  0, 0]; %elbow joint
-ViaPts(3,:) = [ 800,   800,   800, 800,  800, 800]; %wrist joint
-
+ViaPts(1,:) = [ 800, 0, 0, 0, 0, 0]; %base joint
+ViaPts(2,:) = [ 800,   0, 0, 0,  0, 0]; %elbow joint
+ViaPts(3,:) = [ 800,   0,   800, 0,  800, 0]; %wrist joint
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
@@ -115,7 +84,7 @@ for k = 1:size(viaPts,2)
     packet(4) = ViaPts(2,k);
     
     %joint 3 set-point packet
-    Packet(7) = ViaPts(3,k);
+    packet(7) = ViaPts(3,k);
     
     
     % Send packet to the server and get the response
