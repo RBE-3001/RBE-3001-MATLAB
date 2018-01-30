@@ -125,6 +125,10 @@ for k = 1:size(viaPts,2)
         disp(returnPacket);
     end
     
+    if PLOT
+       stickModel(m(k,1), m(k,4), m(k,7));
+    end
+    
     pause(1) %timeit(returnPacket) !FIXME why is this needed?
 end
 

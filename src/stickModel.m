@@ -1,8 +1,8 @@
-function T = stickModel(q, plot_on)
+function T = stickModel(q)
 
 %variables
     %input = [theta1, theta2,   theta3]
-        q = [     0,    15,       0];
+    %    q = [     0,    15,       0];
     
 %constants
     %link lenths
