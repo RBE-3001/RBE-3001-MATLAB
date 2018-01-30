@@ -15,7 +15,7 @@ pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 DEBUG   = false;          % enables/disables debug prints
 PLOT    = true;           % enables/diables plotting
 degreesPerTics = 45/400;   %calibrates the degrees per encoder tic
-
+%{
 %Set up PID for the arm at the beginning of runtime
 %Server ID, see SERVER_ID in PidConfigServer.h in Nucleo code
 PID_SERVER_ID = 65;
@@ -42,7 +42,7 @@ for a = 0:size(pidValues,2)-1
     returnPIDPacket = pp.command(PID_SERVER_ID, pidPacket)
     
 end
-
+%}
 % Create a PacketProcessor object to send data to the nucleo firmware
 SERV_ID = 37;            % we will be talking to server ID 37 on
                          % the Nucleo
@@ -126,7 +126,8 @@ for k = 1:size(viaPts,2)
     end
     
     if PLOT
-       stickModel(m(k,1), m(k,4), m(k,7));
+       f1 = stickModel([m(k,1), m(k,4), m(k,7)]);
+
     end
     
     pause(1) %timeit(returnPacket) !FIXME why is this needed?
@@ -153,6 +154,7 @@ csvwrite('JointAngle.csv', Joint1Angles);
 csvwrite('JointAngle.csv', Joint2Angles);
 csvwrite('JointAngle.csv', Joint3Angles);
 
+%{
 if PLOT
     %plots the base joint angle over time
     figure('Position', [50, 50, 864, 864], 'Color', 'w');
@@ -162,11 +164,12 @@ if PLOT
     ylabel('Base Joint Angle (degrees)');
     grid on;
 end
+%}
 
 %displays the data inside the .csv file
 if DEBUG
     %reads .csv file and stores contents in a temporary Array
-    MM = csvread('baseJointAngle.csv');
+    MM = csvread('JointAngle.csv');
     %displays the matrix of the data in the .csv file
     disp('Matlab wrote:');
     disp(MM);
