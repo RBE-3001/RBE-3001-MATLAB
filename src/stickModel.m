@@ -1,20 +1,18 @@
 function T = stickModel(q)
 %close all;
+
+degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
+                            %this is also in stickModel.m
 %variables
     %input = [theta1, theta2,   theta3]
     %    q = [     0,    15,       0];
     
-%constants
-    %link lenths
-    L1 = 0.5;
-    L2 = 0.5;
-    L3 = 0.2;
-    
+   
 %transform matrices
     %  = tdh( theta,      d, alpha,      a)
     A1 = tdh(q(1,1),    135,     0,      0);
-    A2 = tdh(q(1,2),      0,   -90,    175);
-    A3 = tdh(q(1,3),      0,     0, 169.28);
+    A2 = tdh(q(1,2)-90,      0,   -90,    175);
+    A3 = tdh(q(1,3)-180,      0,     0, 169.28);
 
 % create a new figure, enable axes and grid
     T = gcf;
@@ -79,7 +77,8 @@ hold off
 
 %saves 
 TCPposition = p(4,:)*degreesPerTics.';
-csvwrite('JointAngle.csv', time);
-csvwrite('TPC.csv', TPCposition);
+
+dlmwrite('TCP.csv', TCPposition, '-append')
+%csvwrite('TCP.csv', TCPposition);
 
     end

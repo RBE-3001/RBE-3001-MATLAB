@@ -15,7 +15,11 @@ pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 DEBUG   = false;          % enables/disables debug prints
 PLOT    = true;           % enables/diables plotting
 degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
-                            %
+                            %this is also in stickModel.m
+                            
+delete TCP.csv;
+delete armData.csv;
+delete JointAngle.csv;
 %{
 %Set up PID for the arm at the beginning of runtime
 %Server ID, see SERVER_ID in PidConfigServer.h in Nucleo code
@@ -77,11 +81,31 @@ for j = 1:holdSize*2:numRows
 end
 %}
 
+%{
 %creates a full trajectory with set-points for each joint
 viaPts = zeros(3,6);
 viaPts(1,:) = [ 800, 400,   0, -400,   0, 0]; %base joint
 viaPts(2,:) = [ 800, 00,   00, 00,   00, 50]; %elbow joint
 viaPts(3,:) = [ 800, 0, 800, 0, 800, 0]; %wrist joint
+%}
+
+%creates a full trajectory with set-points for each joint in a triangle
+viaPts = zeros(3,90);
+for u = 1:30
+viaPts(1,u) = 0+800/30*u;
+viaPts(2,u) = 0+800/30*u;
+viaPts(3,u) = 0+800/30*u;
+end
+for u = 31:60
+viaPts(1,u) = 1200-400/30*u;
+viaPts(2,u) = 1600-800/30*u;
+viaPts(3,u) = 1600-800/30*u;
+end
+for u = 61:90
+viaPts(1,u) = 400-0/30*u;
+viaPts(2,u) = 0+0/30*u;
+viaPts(3,61:90) = viaPts(3,1:30);    
+end
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
@@ -137,7 +161,7 @@ for k = 1:size(viaPts,2)
         end
     end
     
-    pause(1) %timeit(returnPacket) !FIXME why is this needed?
+    pause(0.001) %timeit(returnPacket) !FIXME why is this needed?
 end
 
 %writes the temporary matrix data to a .csv file
@@ -156,7 +180,7 @@ end
 Joint1Angles = m(:,1)*degreesPerTics.';
 Joint2Angles = m(:,4)*degreesPerTics.';
 Joint3Angles = m(:,7)*degreesPerTics.';
-csvwrite('JointAngle.csv', time);
+csvwrite('JointAngle.csv', time);         %FIX ME BECAUSE I OVERWRITE DATA
 csvwrite('JointAngle.csv', Joint1Angles);
 csvwrite('JointAngle.csv', Joint2Angles);
 csvwrite('JointAngle.csv', Joint3Angles);

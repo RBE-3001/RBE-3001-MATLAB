@@ -4,21 +4,16 @@ function T = traceModel(q)
 %variables
     %input = [theta1b, theta2b,   theta3b, theta1b, theta2b,   theta3b]
        % q = [      0,      15,         0,       0,      25,         0];
-    
-%constants
-    %link lenths
-    L1 = 0.5;
-    L2 = 0.5;
-    L3 = 0.2;
+
     
 %transform matrices
     %  = tdh( theta,      d, alpha,      a)
     A1 = tdh(q(1,1),    135,     0,      0);
-    A2 = tdh(q(1,2),      0,   -90,    175);
-    A3 = tdh(q(1,3),      0,     0, 169.28);
+    A2 = tdh(q(1,2)-90,      0,   -90,    175);
+    A3 = tdh(q(1,3)-180,      0,     0, 169.28);
     B1 = tdh(q(1,4),    135,     0,      0);
-    B2 = tdh(q(1,5),      0,   -90,    175);
-    B3 = tdh(q(1,6),      0,     0, 169.28);
+    B2 = tdh(q(1,5)-90,      0,   -90,    175);
+    B3 = tdh(q(1,6)-180,      0,     0, 169.28);
 
 % create a new figure, enable axes and grid
     T = gcf;
