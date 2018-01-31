@@ -13,8 +13,8 @@ import java.lang.*;
 pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 
 DEBUG   = false;          % enables/disables debug prints
-PLOT    = false;          % enables/diables plotting
-DATALOG = false;          % enables/disables data logging
+PLOT    = true;          % enables/diables plotting
+DATALOG = true;          % enables/disables data logging
 degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
                             %this is also in stickModel.m
                             
@@ -85,9 +85,9 @@ end
 
 %creates a full trajectory with set-points for each joint
 viaPts = zeros(3,6);
-%viaPts(1,:) = [ 800, 400,   0, -400,   0, 0]; %base joint
-%viaPts(2,:) = [ 800, 00,   00, 00,   00, 50]; %elbow joint
-%viaPts(3,:) = [ 800, 0, 800, 0, 800, 0]; %wrist joint
+viaPts(1,:) = [ 800, 400,   0, -400,   0, 0]; %base joint
+viaPts(2,:) = [ 800, 800,   800, 1600,   1600, 50]; %elbow joint
+viaPts(3,:) = [ 800, 0, 800, 0, 800, 0]; %wrist joint
 
 
 %{
@@ -185,13 +185,11 @@ if DATALOG
     if PLOT
         %plots the arm's joint angles over time
         figure('Position', [50, 50, 864, 864], 'Color', 'w');
-        plot(time,Joint1Angles,'r-x')
-        plot(time,Joint2Angles,'b-+')
-        plot(time,Joint3Angles,'g-O')
+        plot(time, Joint1Angles, 'r-*', time, Joint2Angles, 'b--O', time, Joint3Angles, 'g-.x', 'LineWidth', 2);
         title('RBE 3001 Lab 2: Joint Angles vs. Time');
         xlabel('Time (s)');
         ylabel('Joint Angle (degrees)');
-        legend('Base Joint', 'Elbow joint', 'Wrist Joint');
+        legend('Base joint', 'Elbow joint', 'Wrist joint');
         grid on;
     end
 
