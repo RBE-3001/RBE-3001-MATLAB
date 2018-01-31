@@ -18,7 +18,7 @@ degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
                             %this is also in stickModel.m
                             
 delete TCP.csv;
-delete armData.csv;
+delete armEncoderValues.csv;
 delete JointAngle.csv;
 %{
 %Set up PID for the arm at the beginning of runtime
@@ -131,7 +131,7 @@ for k = 1:size(viaPts,2)
     packet(7) = viaPts(3,k);
     
     
-    % Send packet to the server and get the response
+    %Send packet to the server and get the response
     returnPacket = pp.command(SERV_ID, packet);
     
     %records the elapsed time since tic
@@ -165,46 +165,30 @@ for k = 1:size(viaPts,2)
 end
 
 %writes the temporary matrix data to a .csv file
-csvwrite('armData.csv',m);
-
-%displays the data inside the .csv file
-if DEBUG
-    %reads .csv file and stores contents in a temporary matrix
-    M = csvread('armData.csv');
-    %displays the matrix of the data in the .csv file
-    disp('Matlab wrote:');
-    disp(M);
-end
+csvwrite('armEncoderValues.csv',m);
 
 %writes a .csv file for just the arm angles
 Joint1Angles = m(:,1)*degreesPerTics.';
 Joint2Angles = m(:,4)*degreesPerTics.';
 Joint3Angles = m(:,7)*degreesPerTics.';
-csvwrite('JointAngle.csv', time);         %FIX ME BECAUSE I OVERWRITE DATA
-csvwrite('JointAngle.csv', Joint1Angles);
-csvwrite('JointAngle.csv', Joint2Angles);
-csvwrite('JointAngle.csv', Joint3Angles);
+dlmwrite('JointAngle.csv', time, '-append');
+dlmwrite('JointAngle.csv', Joint1Angles, '-append');
+dlmwrite('JointAngle.csv', Joint2Angles, '-append');
+dlmwrite('JointAngle.csv', Joint3Angles, '-append');
 
-%{
 if PLOT
-    %plots the base joint angle over time
+    %plots the arm's joint angles over time
     figure('Position', [50, 50, 864, 864], 'Color', 'w');
-    plot(time,baseJointAngles,'r-x')
-    title('RBE 3001 Lab 1: Base Joint Angle vs. Time');
+    plot(time,Joint1Angles,'r-x')
+    plot(time,Joint2Angles,'b-+')
+    plot(time,Joint3Angles,'g-O')
+    title('RBE 3001 Lab 2: Joint Angles vs. Time');
     xlabel('Time (s)');
-    ylabel('Base Joint Angle (degrees)');
+    ylabel('Joint Angle (degrees)');
+    legend('Base Joint', 'Elbow joint', 'Wrist Joint');
     grid on;
 end
-%}
 
-%displays the data inside the .csv file
-if DEBUG
-    %reads .csv file and stores contents in a temporary Array
-    MM = csvread('JointAngle.csv');
-    %displays the matrix of the data in the .csv file
-    disp('Matlab wrote:');
-    disp(MM);
-end
 
 
 % Clear up memory upon termination
