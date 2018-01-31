@@ -14,7 +14,8 @@ pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 
 DEBUG   = false;          % enables/disables debug prints
 PLOT    = true;           % enables/diables plotting
-degreesPerTics = 45/400;   %calibrates the degrees per encoder tic
+degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
+                            %
 %{
 %Set up PID for the arm at the beginning of runtime
 %Server ID, see SERVER_ID in PidConfigServer.h in Nucleo code
@@ -25,9 +26,9 @@ pidValues = [0.005, 0, 0, 1, 0;     %Base
              0.005, 0, 0, 1, 0;     %Shoulder
              0.005, 0, 0, 1, 0];    %Wrist
 
-pidPacket = zeros(15, 1, 'single');         
+pidPacket = zeros(15, 1, 'single');
          
-for a = 0:size(pidValues,2)-1 
+for a = 0:size(pidValues,2)-1
     
      %joint 1 packet
     pidPacket(a*3+1) = pidValues(1,a+1);
@@ -45,7 +46,7 @@ end
 %}
 % Create a PacketProcessor object to send data to the nucleo firmware
 SERV_ID = 37;            % we will be talking to server ID 37 on
-                         % the Nucleo
+% the Nucleo
 
 % Instantiate a packet - the following instruction allocates 64
 % bytes for this purpose. Recall that the HID interface supports
@@ -54,7 +55,7 @@ packet = zeros(15, 1, 'single');
 
 % The following code generates a sinusoidal trajectory to be
 % executed on joint 1 of the arm and iteratively sends the list of
-% setpoints to the Nucleo firmware. 
+% setpoints to the Nucleo firmware.
 
 %viaPts = [0, -400, 0, 400, 0, -400, 0];
 
@@ -78,9 +79,9 @@ end
 
 %creates a full trajectory with set-points for each joint
 viaPts = zeros(3,6);
-ViaPts(1,:) = [ 800, 400,   0, -400,   0, 0]; %base joint
-ViaPts(2,:) = [ 800, 00,   00, 00,   00, 50]; %elbow joint
-ViaPts(3,:) = [ 800, 0, 800, 0, 800, 0]; %wrist joint
+viaPts(1,:) = [ 800, 400,   0, -400,   0, 0]; %base joint
+viaPts(2,:) = [ 800, 00,   00, 00,   00, 50]; %elbow joint
+viaPts(3,:) = [ 800, 0, 800, 0, 800, 0]; %wrist joint
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
@@ -92,18 +93,18 @@ time = zeros(1, size(viaPts,2));
 tic %starts an elapse timer
 
 % Iterate through commands for joint values
-    %size(matrix_name, 1 (rows) or 2 (columns))
+%size(matrix_name, 1 (rows) or 2 (columns))
 for k = 1:size(viaPts,2)
     %incremtal = (single(k) / sinWaveInc);
-   
+    
     %joint 1 set-point packet
-    packet(1) = ViaPts(1,k);
+    packet(1) = viaPts(1,k);
     
     %joint 2 set-point packet
-    packet(4) = ViaPts(2,k);
+    packet(4) = viaPts(2,k);
     
     %joint 3 set-point packet
-    packet(7) = ViaPts(3,k);
+    packet(7) = viaPts(3,k);
     
     
     % Send packet to the server and get the response
@@ -117,7 +118,7 @@ for k = 1:size(viaPts,2)
     %adds the returned data to the temporary matrix as a row instead of a
     %column (list)
     m(k,:) = returnPacket;
-   
+    
     if DEBUG
         disp('Sent Packet:');
         disp(packet);
@@ -125,9 +126,15 @@ for k = 1:size(viaPts,2)
         disp(returnPacket);
     end
     
+    %plots a stick model with green spheres for joints, thick blue lines for links,
+    %and a thin red line for path
     if PLOT
-       f1 = stickModel([m(k,1), m(k,4), m(k,7)]);
-
+        %plots links andjoints
+        f1 = stickModel([m(k,1), m(k,4), m(k,7)]*degreesPerTics);
+        %plots path
+        if k > 1
+            traceModel([m(k-1,1), m(k-1,4), m(k-1,7),m(k,1), m(k,4), m(k,7)]*degreesPerTics);
+        end
     end
     
     pause(1) %timeit(returnPacket) !FIXME why is this needed?
