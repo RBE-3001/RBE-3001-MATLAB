@@ -7,19 +7,20 @@ function T = traceModel(q)
 
     
 %transform matrices
-    %  = tdh( theta,      d, alpha,      a)
-    A1 = tdh(q(1,1),    135,     0,      0);
-    A2 = tdh(q(1,2)-90,      0,   -90,    175);
-    A3 = tdh(q(1,3)-180,      0,     0, 169.28);
-    B1 = tdh(q(1,4),    135,     0,      0);
-    B2 = tdh(q(1,5)-90,      0,   -90,    175);
-    B3 = tdh(q(1,6)-180,      0,     0, 169.28);
+    %  = tdh( theta,      d,    alpha,      a)
+    A1 = tdh(-q(1,1),    135,     -90,      0);
+    A2 = tdh(-q(1,2),      0,       0,    175);
+    A3 = tdh(-q(1,3),      0,       0, 169.28);
+    %  = tdh( theta,      d,    alpha,      a)
+    B1 = tdh(-q(1,4),    135,     -90,      0);
+    B2 = tdh(-q(1,5),      0,       0,    175);
+    B3 = tdh(-q(1,6),      0,       0, 169.28);
 
 % create a new figure, enable axes and grid
     T = gcf;
     
     %plot settings
-    axis on, grid on, axis equal, axis square, shading interp
+    axis on, grid on, shading interp
     %saves all of the points the robot has been on the graph
        hold on            
     %keeps graph and data the same size
@@ -29,9 +30,9 @@ function T = traceModel(q)
      lim = [-350, 350];
      xlim(lim);
      ylim(lim);
-     zlim(lim);
+     zlim([0, 700]);
      
-     axis([-350, 350, -350, 350, -350, 350]);
+     axis([-350, 350, -350, 350, 0, 700]);
      
     % center the figure on screen and resize it
          fig_pos = [0, 0, 900, 900];

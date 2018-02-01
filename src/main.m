@@ -85,9 +85,9 @@ end
 
 %creates a full trajectory with set-points for each joint
 viaPts = zeros(3,6);
-viaPts(1,:) = [ 800, 400,   0, -400,   0, 0]; %base joint
-viaPts(2,:) = [ 800, 800,   800, 1600,   1600, 50]; %elbow joint
-viaPts(3,:) = [ 800, 0, 800, 0, 800, 0]; %wrist joint
+viaPts(1,:) = [0, 800, 1000, 400, -400, 0]; %base joint
+viaPts(2,:) = [0, 800, 1000, 400,  400, 0]; %elbow joint
+viaPts(3,:) = [0, 800, 1000, 400, -400, 0]; %wrist joint
 
 
 %{
@@ -165,7 +165,7 @@ for k = 1:size(viaPts,2)
         end
     end
     
-    pause(0.001) %timeit(returnPacket) !FIXME why is this needed?
+    pause(1) %timeit(returnPacket) !FIXME why is this needed?
 end
 
 if DATALOG
@@ -184,8 +184,8 @@ if DATALOG
 
     if PLOT
         %plots the arm's joint angles over time
-        figure('Position', [50, 50, 864, 864], 'Color', 'w');
-        plot(time, Joint1Angles, 'r-*', time, Joint2Angles, 'b--O', time, Joint3Angles, 'g-.x', 'LineWidth', 2);
+        figure('Position', [50, 50, 864, 864]);
+        plot(time, Joint1Angles, 'r-*', time, Joint2Angles, 'b--x', time, Joint3Angles, 'g-.O', 'LineWidth', 2);
         title('RBE 3001 Lab 2: Joint Angles vs. Time');
         xlabel('Time (s)');
         ylabel('Joint Angle (degrees)');
