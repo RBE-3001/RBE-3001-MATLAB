@@ -254,17 +254,17 @@ if DATALOG
         switch joint
             case 1
                 plot(time, Joint1Angles, 'r--*', time, viaPts(joint,:)*degreesPerTics, 'b-', 'LineWidth', 2);
-                title('RBE 3001 Lab 2 PID untuned: Base joint Angle vs. Time');
+                title('RBE 3001 Lab 2 PID Tuned: Base joint Angle vs. Time');
                 legend('Base joint angle', 'Set-point angle');
 
             case 2
                 plot(time, Joint2Angles, 'r--*', time, viaPts(joint,:)*degreesPerTics, 'b-', 'LineWidth', 2);
-                title('RBE 3001 Lab 2 PID untuned: Elbow joint Angle vs. Time');
+                title('RBE 3001 Lab 2 PID Tuned: Elbow joint Angle vs. Time');
                 legend('Elbow joint angle', 'Set-point angle');
 
             case 3
                 plot(time, Joint3Angles, 'r--*', time, viaPts(joint,:)*degreesPerTics, 'b-', 'LineWidth', 2);
-                title('RBE 3001 Lab 2 PID untuned: Wrist joint Angle vs. Time');
+                title('RBE 3001 Lab 2 PID Tuned: Wrist joint Angle vs. Time');
                 legend('Wrist joint angle', 'Set-point angle');
 
         end
