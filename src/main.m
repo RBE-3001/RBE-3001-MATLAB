@@ -21,6 +21,8 @@ degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
 delete TCP.csv;
 delete armEncoderValues.csv;
 delete JointAngles.csv;
+delete JointVelocities.csv;
+
 %{
 %Set up PID for the arm at the beginning of runtime
 %Server ID, see SERVER_ID in PidConfigServer.h in Nucleo code
@@ -82,13 +84,24 @@ for j = 1:holdSize*2:numRows
 end
 %}
 
-
+%{
 %creates a full trajectory with set-points for each joint
 viaPts = zeros(3,6);
 viaPts(1,:) = [0, 800, 1000, 400, -400, 0]; %base joint
 viaPts(2,:) = [0, 800, 1000, 400,  400, 0]; %elbow joint
 viaPts(3,:) = [0, 800, 1000, 400, -400, 0]; %wrist joint
+%}
 
+%creates a full trajectory with the same set-point for each joint with data points
+
+holdSize = 10;
+setPts = [0, 1000, 300, 700, 100, 800, 0]; %must be positive because the 
+                            %elbow joint doesnt tollerate negative values
+viaPts = zeros(3,size(setPts*holdSize,2));
+                            
+for k = 1:size(setPts,2)
+    viaPts(:,holdSize*(k-1)+1:holdSize*k) = setPts(1,k);
+end
 
 %{
 %creates a full trajectory with set-points for each joint in a triangle
@@ -109,6 +122,11 @@ viaPts(2,u) = 0+0/30*u;
 viaPts(3,61:90) = viaPts(3,1:30);    
 end
 %}
+
+%displays the set-points matrix
+if DEBUG
+    viaPts
+end
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
@@ -138,6 +156,7 @@ for k = 1:size(viaPts,2)
     returnPacket = pp.command(SERV_ID, packet);
     
     toc %displays the elapsed time since tic
+    
     if DATALOG
         %records the elapsed time since tic
         time(1,k) = toc; 
@@ -165,7 +184,7 @@ for k = 1:size(viaPts,2)
         end
     end
     
-    pause(1) %timeit(returnPacket) !FIXME why is this needed?
+    pause(0.1) %timeit(returnPacket) !FIXME why is this needed?
 end
 
 if DATALOG
@@ -173,26 +192,48 @@ if DATALOG
     %writes the temporary matrix data to a .csv file
     csvwrite('armEncoderValues.csv',m);
 
-    %writes a .csv file for just the arm angles
-    Joint1Angles = m(:,1)*degreesPerTics.';
-    Joint2Angles = m(:,4)*degreesPerTics.';
-    Joint3Angles = m(:,7)*degreesPerTics.';
+    %writes a .csv file for just the arm's joint angles
+    Joint1Angles = m(:,1).'*degreesPerTics;
+    Joint2Angles = m(:,4).'*degreesPerTics;
+    Joint3Angles = m(:,7).'*degreesPerTics;
     dlmwrite('JointAngles.csv', time, '-append');
     dlmwrite('JointAngles.csv', Joint1Angles, '-append');
     dlmwrite('JointAngles.csv', Joint2Angles, '-append');
     dlmwrite('JointAngles.csv', Joint3Angles, '-append');
-
+    
     if PLOT
         %plots the arm's joint angles over time
-        figure('Position', [50, 50, 864, 864]);
+        figure('Position', [0, 50, 864, 864]);
         plot(time, Joint1Angles, 'r-*', time, Joint2Angles, 'b--x', time, Joint3Angles, 'g-.O', 'LineWidth', 2);
         title('RBE 3001 Lab 2: Joint Angles vs. Time');
         xlabel('Time (s)');
         ylabel('Joint Angle (degrees)');
         legend('Base joint', 'Elbow joint', 'Wrist joint');
         grid on;
+        
     end
+    
+    %writes a .csv file for just the arm's joint velocities
+    Joint1Velocities = diff(m(:,1).'*degreesPerTics);
+    Joint2Velocities = diff(m(:,4).'*degreesPerTics);
+    Joint3Velocities = diff(m(:,7).'*degreesPerTics);
+    dlmwrite('JointVelocities.csv', time, '-append');
+    dlmwrite('JointVelocities.csv', Joint1Velocities, '-append');
+    dlmwrite('JointVelocities.csv', Joint2Velocities, '-append');
+    dlmwrite('JointVelocities.csv', Joint3Velocities, '-append');
 
+    if PLOT
+        %plots the arm's joint velocities over time
+        figure('Position', [864, 50, 864, 864]);
+        plot(time(1,1:(size(time,2)-1)), Joint1Velocities, 'r-*', time(1,1:(size(time,2)-1)), Joint2Velocities, 'b--x', time(1,1:(size(time,2)-1)), Joint3Velocities, 'g-.O', 'LineWidth', 2);
+        title('RBE 3001 Lab 2: Joint Velocities vs. Time');
+        xlabel('Time (s)');
+        ylabel('Joint Velocity (mm/s)');
+        legend('Base joint', 'Elbow joint', 'Wrist joint');
+        grid on;
+        
+    end
+    
 end
 
 % Clear up memory upon termination
