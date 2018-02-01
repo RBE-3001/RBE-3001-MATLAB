@@ -12,9 +12,11 @@ import java.lang.*;
 
 pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 
-DEBUG   = false;          % enables/disables debug prints
-PLOT    = true;          % enables/diables plotting
-DATALOG = true;          % enables/disables data logging
+DEBUG    = false;          % enables/disables debug prints
+PLOT     = false;          % enables/diables plotting
+PLOT_PID = true;           %enables/disables pid tuning plots
+DATALOG  = true;          % enables/disables data logging
+
 degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
                             %this is also in stickModel.m
                             
@@ -124,6 +126,18 @@ viaPts(3,61:90) = viaPts(3,1:30);
 end
 %}
 
+%creates a full trajectory with the same set-point for a single joint with
+%data points for PID tuningjum
+holdSize = 10;
+joint = 2;
+setPts = [0, 400, 0, 800, 0, 1200, 0]; %must be positive if joint 2 because 
+                        %the elbow joint doesnt tollerate negative values
+viaPts = zeros(3,size(setPts*holdSize,2));
+                            
+for k = 1:size(setPts,2)
+    viaPts(joint,holdSize*(k-1)+1:holdSize*k) = setPts(1,k);
+end
+
 %displays the set-points matrix
 if DEBUG
     viaPts
@@ -231,10 +245,34 @@ if DATALOG
         xlabel('Time (s)');
         ylabel('Joint Velocity (mm/s)');
         legend('Base joint', 'Elbow joint', 'Wrist joint');
-        grid on;
-        
+        grid on; 
     end
     
+    if PLOT_PID
+        %plots the arm's joint angles over time
+        figure('Position', [0, 50, 864, 864]);
+        switch joint
+            case 1
+                plot(time, Joint1Angles, 'r-*', time, viaPts(joint,:)*degreesPerTic, 'b--x', 'LineWidth', 2);
+            case 2
+                plot(time, Joint2Angles, 'r-*', time, viaPts(joint,:)*degreesPerTic, 'b--x', 'LineWidth', 2);
+            case 3
+                plot(time, Joint3Angles, 'r-*', time, viaPts(joint,:)*degreesPerTic, 'b--x', 'LineWidth', 2);
+        end
+        title('RBE 3001 Lab 2: Joint Angle vs. Time');
+        xlabel('Time (s)');
+        ylabel('Joint Angle (degrees)');
+        switch joint
+            case 1
+                legend('Base joint angle', 'Set-point angle');
+            case 2
+                legend('Elbow joint angle', 'Set-point angle');
+            case 3
+                legend('Wrist joint angle', 'Set-point angle');
+            end
+        grid on;
+        
+    end   
 end
 
 % Clear up memory upon termination
