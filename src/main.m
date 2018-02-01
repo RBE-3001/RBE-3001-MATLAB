@@ -12,7 +12,7 @@ import java.lang.*;
 
 pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 
-DEBUG   = false;          % enables/disables debug prints
+DEBUG   = true;          % enables/disables debug prints
 PLOT    = true;          % enables/diables plotting
 DATALOG = true;          % enables/disables data logging
 degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
@@ -84,13 +84,12 @@ for j = 1:holdSize*2:numRows
 end
 %}
 
-%{
+
 %creates a full trajectory with set-points for each joint
-viaPts = zeros(3,6);
-viaPts(1,:) = [0, 800, 1000, 400, -400, 0]; %base joint
-viaPts(2,:) = [0, 800, 1000, 400,  400, 0]; %elbow joint
-viaPts(3,:) = [0, 800, 1000, 400, -400, 0]; %wrist joint
-%}
+%viaPts = zeros(3,5);
+%viaPts(1,:) = [0, 0, 0, 0, 0]; %base joint
+%viaPts(2,:) = [839, 227, -8, 839, 839]; %elbow joint
+%viaPts(3,:) = [-36, -191, -1218, -36, -36]; %wrist joint
 
 %{
 %creates a full trajectory with the same set-point for each joint with data points
@@ -104,25 +103,43 @@ for k = 1:size(setPts,2)
 end
 %}
 
-%{
+
 %creates a full trajectory with set-points for each joint in a triangle
-viaPts = zeros(3,90);
-for u = 1:30
-viaPts(1,u) = 0+800/30*u;
-viaPts(2,u) = 0+800/30*u;
-viaPts(3,u) = 0+800/30*u;
+%this is the hard-coded output of the cubicPoly function that we had
+%trouble with, but this does a good job of linear interpolation
+viaPts = zeros(3,40);
+holdSize = 10;
+counter = 0;
+for u = holdSize*0+1:holdSize*1
+viaPts(1,u) = 0;
+viaPts(2,u) = 839-(839-227)/holdSize*counter;
+viaPts(3,u) = -36-(-36--191)/holdSize*counter;
+counter = counter + 1;
 end
-for u = 31:60
-viaPts(1,u) = 1200-400/30*u;
-viaPts(2,u) = 1600-800/30*u;
-viaPts(3,u) = 1600-800/30*u;
+counter = 0;
+for u = holdSize*1+1:holdSize*2
+viaPts(1,u) = 0;
+viaPts(2,u) = 227-(227--8)/holdSize*counter;
+viaPts(3,u) = -191-(-191--36)/holdSize*counter;
+counter = counter + 1;
 end
-for u = 61:90
-viaPts(1,u) = 400-0/30*u;
-viaPts(2,u) = 0+0/30*u;
-viaPts(3,61:90) = viaPts(3,1:30);    
+counter = 0;
+for u = holdSize*2+1:holdSize*3
+viaPts(1,u) = 0;
+viaPts(2,u) = -8-(-8-839)/holdSize*counter;
+viaPts(3,u) = -36-(-36--1218)/holdSize*counter; 
+counter = counter + 1;
 end
-%}
+for u = holdSize*3+1:holdSize*4
+viaPts(1,u) = 0;
+viaPts(2,u) = 839-(839-839)/holdSize*counter;
+viaPts(3,u) = -1218-(-1218--1218)/holdSize*counter; 
+counter = counter + 1;
+end
+%viaPts(2,41) = 839;
+%viaPts(3,41) = -36;
+
+
 
 %displays the set-points matrix
 if DEBUG
@@ -185,7 +202,7 @@ for k = 1:size(viaPts,2)
         end
     end
     
-    pause(0.1) %timeit(returnPacket) !FIXME why is this needed?
+    pause(0.01) %timeit(returnPacket) !FIXME why is this needed?
 end
 
 if DATALOG
