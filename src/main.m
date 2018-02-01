@@ -13,9 +13,16 @@ import java.lang.*;
 pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 
 DEBUG   = false;          % enables/disables debug prints
-PLOT    = true;           % enables/diables plotting
+PLOT    = true;          % enables/diables plotting
+DATALOG = true;          % enables/disables data logging
 degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
-                            %
+                            %this is also in stickModel.m
+                            
+delete TCP.csv;
+delete armEncoderValues.csv;
+delete JointAngles.csv;
+delete JointVelocities.csv;
+
 %{
 %Set up PID for the arm at the beginning of runtime
 %Server ID, see SERVER_ID in PidConfigServer.h in Nucleo code
@@ -77,11 +84,50 @@ for j = 1:holdSize*2:numRows
 end
 %}
 
+%{
 %creates a full trajectory with set-points for each joint
 viaPts = zeros(3,6);
-viaPts(1,:) = [ 800, 400,   0, -400,   0, 0]; %base joint
-viaPts(2,:) = [ 800, 00,   00, 00,   00, 50]; %elbow joint
-viaPts(3,:) = [ 800, 0, 800, 0, 800, 0]; %wrist joint
+viaPts(1,:) = [0, 800, 1000, 400, -400, 0]; %base joint
+viaPts(2,:) = [0, 800, 1000, 400,  400, 0]; %elbow joint
+viaPts(3,:) = [0, 800, 1000, 400, -400, 0]; %wrist joint
+%}
+
+%{
+%creates a full trajectory with the same set-point for each joint with data points
+holdSize = 10;
+setPts = [0, 1000, 300, 700, 100, 800, 0]; %must be positive because the 
+                            %elbow joint doesnt tollerate negative values
+viaPts = zeros(3,size(setPts*holdSize,2));
+                            
+for k = 1:size(setPts,2)
+    viaPts(:,holdSize*(k-1)+1:holdSize*k) = setPts(1,k);
+end
+%}
+
+%{
+%creates a full trajectory with set-points for each joint in a triangle
+viaPts = zeros(3,90);
+for u = 1:30
+viaPts(1,u) = 0+800/30*u;
+viaPts(2,u) = 0+800/30*u;
+viaPts(3,u) = 0+800/30*u;
+end
+for u = 31:60
+viaPts(1,u) = 1200-400/30*u;
+viaPts(2,u) = 1600-800/30*u;
+viaPts(3,u) = 1600-800/30*u;
+end
+for u = 61:90
+viaPts(1,u) = 400-0/30*u;
+viaPts(2,u) = 0+0/30*u;
+viaPts(3,61:90) = viaPts(3,1:30);    
+end
+%}
+
+%displays the set-points matrix
+if DEBUG
+    viaPts
+end
 
 %initialize our temporary matrix to store data to be written to the .csv in
 %a matrix the size of the number of setpoints by the number of returned
@@ -107,17 +153,19 @@ for k = 1:size(viaPts,2)
     packet(7) = viaPts(3,k);
     
     
-    % Send packet to the server and get the response
+    %Send packet to the server and get the response
     returnPacket = pp.command(SERV_ID, packet);
-    
-    %records the elapsed time since tic
-    time(1,k) = toc;
     
     toc %displays the elapsed time since tic
     
-    %adds the returned data to the temporary matrix as a row instead of a
-    %column (list)
-    m(k,:) = returnPacket;
+    if DATALOG
+        %records the elapsed time since tic
+        time(1,k) = toc; 
+
+        %adds the returned data to the temporary matrix as a row instead of a
+        %column (list)
+        m(k,:) = returnPacket;
+    end
     
     if DEBUG
         disp('Sent Packet:');
@@ -137,51 +185,57 @@ for k = 1:size(viaPts,2)
         end
     end
     
-    pause(1) %timeit(returnPacket) !FIXME why is this needed?
+    pause(0.1) %timeit(returnPacket) !FIXME why is this needed?
 end
 
-%writes the temporary matrix data to a .csv file
-csvwrite('armData.csv',m);
+if DATALOG
 
-%displays the data inside the .csv file
-if DEBUG
-    %reads .csv file and stores contents in a temporary matrix
-    M = csvread('armData.csv');
-    %displays the matrix of the data in the .csv file
-    disp('Matlab wrote:');
-    disp(M);
+    %writes the temporary matrix data to a .csv file
+    csvwrite('armEncoderValues.csv',m);
+
+    %writes a .csv file for just the arm's joint angles
+    Joint1Angles = m(:,1).'*degreesPerTics;
+    Joint2Angles = m(:,4).'*degreesPerTics;
+    Joint3Angles = m(:,7).'*degreesPerTics;
+    dlmwrite('JointAngles.csv', time, '-append');
+    dlmwrite('JointAngles.csv', Joint1Angles, '-append');
+    dlmwrite('JointAngles.csv', Joint2Angles, '-append');
+    dlmwrite('JointAngles.csv', Joint3Angles, '-append');
+    
+    if PLOT
+        %plots the arm's joint angles over time
+        figure('Position', [0, 50, 864, 864]);
+        plot(time, Joint1Angles, 'r-*', time, Joint2Angles, 'b--x', time, Joint3Angles, 'g-.O', 'LineWidth', 2);
+        title('RBE 3001 Lab 2: Joint Angles vs. Time');
+        xlabel('Time (s)');
+        ylabel('Joint Angle (degrees)');
+        legend('Base joint', 'Elbow joint', 'Wrist joint');
+        grid on;
+        
+    end
+    
+    %writes a .csv file for just the arm's joint velocities
+    Joint1Velocities = diff(m(:,1).'*degreesPerTics);
+    Joint2Velocities = diff(m(:,4).'*degreesPerTics);
+    Joint3Velocities = diff(m(:,7).'*degreesPerTics);
+    dlmwrite('JointVelocities.csv', time, '-append');
+    dlmwrite('JointVelocities.csv', Joint1Velocities, '-append');
+    dlmwrite('JointVelocities.csv', Joint2Velocities, '-append');
+    dlmwrite('JointVelocities.csv', Joint3Velocities, '-append');
+
+    if PLOT
+        %plots the arm's joint velocities over time
+        figure('Position', [864, 50, 864, 864]);
+        plot(time(1,1:(size(time,2)-1)), Joint1Velocities, 'r-*', time(1,1:(size(time,2)-1)), Joint2Velocities, 'b--x', time(1,1:(size(time,2)-1)), Joint3Velocities, 'g-.O', 'LineWidth', 2);
+        title('RBE 3001 Lab 2: Joint Velocities vs. Time');
+        xlabel('Time (s)');
+        ylabel('Joint Velocity (mm/s)');
+        legend('Base joint', 'Elbow joint', 'Wrist joint');
+        grid on;
+        
+    end
+    
 end
-
-%writes a .csv file for just the arm angles
-Joint1Angles = m(:,1)*degreesPerTics.';
-Joint2Angles = m(:,4)*degreesPerTics.';
-Joint3Angles = m(:,7)*degreesPerTics.';
-csvwrite('JointAngle.csv', time);
-csvwrite('JointAngle.csv', Joint1Angles);
-csvwrite('JointAngle.csv', Joint2Angles);
-csvwrite('JointAngle.csv', Joint3Angles);
-
-%{
-if PLOT
-    %plots the base joint angle over time
-    figure('Position', [50, 50, 864, 864], 'Color', 'w');
-    plot(time,baseJointAngles,'r-x')
-    title('RBE 3001 Lab 1: Base Joint Angle vs. Time');
-    xlabel('Time (s)');
-    ylabel('Base Joint Angle (degrees)');
-    grid on;
-end
-%}
-
-%displays the data inside the .csv file
-if DEBUG
-    %reads .csv file and stores contents in a temporary Array
-    MM = csvread('JointAngle.csv');
-    %displays the matrix of the data in the .csv file
-    disp('Matlab wrote:');
-    disp(MM);
-end
-
 
 % Clear up memory upon termination
 pp.shutdown()
