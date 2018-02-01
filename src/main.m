@@ -129,8 +129,8 @@ end
 %creates a full trajectory with the same set-point for a single joint with
 %data points for PID tuningjum
 holdSize = 10;
-joint = 2;
-setPts = [0, 400, 0, 800, 0, 1200, 0]; %must be positive if joint 2 because 
+joint = 3;
+setPts = [0, 300, 0, 600, 0, 900, 0]; %must be positive if joint 2 because 
                         %the elbow joint doesnt tollerate negative values
 viaPts = zeros(3,size(setPts*holdSize,2));
                             
@@ -253,23 +253,24 @@ if DATALOG
         figure('Position', [0, 50, 864, 864]);
         switch joint
             case 1
-                plot(time, Joint1Angles, 'r-*', time, viaPts(joint,:)*degreesPerTic, 'b--x', 'LineWidth', 2);
+                plot(time, Joint1Angles, 'r--*', time, viaPts(joint,:)*degreesPerTics, 'b-', 'LineWidth', 2);
+                title('RBE 3001 Lab 2 PID untuned: Base joint Angle vs. Time');
+                legend('Base joint angle', 'Set-point angle');
+
             case 2
-                plot(time, Joint2Angles, 'r-*', time, viaPts(joint,:)*degreesPerTic, 'b--x', 'LineWidth', 2);
+                plot(time, Joint2Angles, 'r--*', time, viaPts(joint,:)*degreesPerTics, 'b-', 'LineWidth', 2);
+                title('RBE 3001 Lab 2 PID untuned: Elbow joint Angle vs. Time');
+                legend('Elbow joint angle', 'Set-point angle');
+
             case 3
-                plot(time, Joint3Angles, 'r-*', time, viaPts(joint,:)*degreesPerTic, 'b--x', 'LineWidth', 2);
+                plot(time, Joint3Angles, 'r--*', time, viaPts(joint,:)*degreesPerTics, 'b-', 'LineWidth', 2);
+                title('RBE 3001 Lab 2 PID untuned: Wrist joint Angle vs. Time');
+                legend('Wrist joint angle', 'Set-point angle');
+
         end
-        title('RBE 3001 Lab 2: Joint Angle vs. Time');
+        
         xlabel('Time (s)');
         ylabel('Joint Angle (degrees)');
-        switch joint
-            case 1
-                legend('Base joint angle', 'Set-point angle');
-            case 2
-                legend('Elbow joint angle', 'Set-point angle');
-            case 3
-                legend('Wrist joint angle', 'Set-point angle');
-            end
         grid on;
         
     end   
