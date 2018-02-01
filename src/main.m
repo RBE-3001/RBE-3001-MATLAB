@@ -92,8 +92,8 @@ viaPts(2,:) = [0, 800, 1000, 400,  400, 0]; %elbow joint
 viaPts(3,:) = [0, 800, 1000, 400, -400, 0]; %wrist joint
 %}
 
+%{
 %creates a full trajectory with the same set-point for each joint with data points
-
 holdSize = 10;
 setPts = [0, 1000, 300, 700, 100, 800, 0]; %must be positive because the 
                             %elbow joint doesnt tollerate negative values
@@ -102,6 +102,7 @@ viaPts = zeros(3,size(setPts*holdSize,2));
 for k = 1:size(setPts,2)
     viaPts(:,holdSize*(k-1)+1:holdSize*k) = setPts(1,k);
 end
+%}
 
 %{
 %creates a full trajectory with set-points for each joint in a triangle
