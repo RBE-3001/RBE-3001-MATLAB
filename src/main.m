@@ -246,7 +246,7 @@ if DATALOG
         plot(time(1,1:(size(time,2)-1)), Joint1Velocities, 'r-*', time(1,1:(size(time,2)-1)), Joint2Velocities, 'b--x', time(1,1:(size(time,2)-1)), Joint3Velocities, 'g-.O', 'LineWidth', 2);
         title('RBE 3001 Lab 2: Joint Velocities vs. Time');
         xlabel('Time (s)');
-        ylabel('Joint Velocity (mm/s)');
+        ylabel('Joint Velocity (degrees/s)');
         legend('Base joint', 'Elbow joint', 'Wrist joint');
         grid on;
         
