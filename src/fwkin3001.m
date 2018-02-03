@@ -1,5 +1,5 @@
-function T = fwkin3001(q)
-DEBUG = false;
+function T = fwkin3001(q,d)
+DEBUG = d;
 
 %joint angle (degrees)
 theta1 = q(1,1);
@@ -37,9 +37,9 @@ A3 = [cosd(theta3), -sind(theta3),            0,  a3*cosd(theta3);
                  0,             0,            0,                1];
 
 if DEBUG
-disp(A1);
-disp(A2);
-disp(A3);
+    disp(A1);
+    disp(A2);
+    disp(A3);
 end
 
 H = A1*A2*A3;
