@@ -12,16 +12,16 @@ import java.lang.*;
 
 pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 
-DEBUG   = false;          % enables/disables debug prints
+DEBUG   = true;          % enables/disables debug prints
 PLOT    = true;          % enables/diables plotting
 DATALOG = true;          % enables/disables data logging
 degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
                             %this is also in stickModel.m
                             
-delete TCP.csv;
 delete armEncoderValues.csv;
 delete JointAngles.csv;
 delete JointVelocities.csv;
+delete X-Y-Z-Position.csv;
 
 % Create a PacketProcessor object to send data to the nucleo firmware
 SERV_ID = 37;            % we will be talking to server ID 37 on
@@ -172,53 +172,53 @@ if DATALOG
     csvwrite('armEncoderValues.csv',m);
 
     %writes a .csv file for just the arm's joint angles
-    Joint1Angles = m(:,1).'*degreesPerTics;
-    Joint2Angles = m(:,4).'*degreesPerTics;
-    Joint3Angles = m(:,7).'*degreesPerTics;
+    joint1Angles = m(:,1).'*degreesPerTics;
+    joint2Angles = m(:,4).'*degreesPerTics;
+    joint3Angles = m(:,7).'*degreesPerTics;
     dlmwrite('JointAngles.csv', time, '-append');
-    dlmwrite('JointAngles.csv', Joint1Angles, '-append');
-    dlmwrite('JointAngles.csv', Joint2Angles, '-append');
-    dlmwrite('JointAngles.csv', Joint3Angles, '-append');
+    dlmwrite('JointAngles.csv', joint1Angles, '-append');
+    dlmwrite('JointAngles.csv', joint2Angles, '-append');
+    dlmwrite('JointAngles.csv', joint3Angles, '-append');
     
     if PLOT
         %plots the arm's joint angles over time
         figure('Position', [0, 50, 864, 864]);
-        plot(time, Joint1Angles, 'r-*', time, Joint2Angles, 'b--x', time, Joint3Angles, 'g-.O', 'LineWidth', 2);
+        plot(time, joint1Angles, 'r-*', time, joint2Angles, 'b--x', time, joint3Angles, 'g-.O', 'LineWidth', 2);
         title('RBE 3001 Lab 3: Joint Angles vs. Time');
         xlabel('Time (s)');
         ylabel('Joint Angle (degrees)');
-        legend('Base joint', 'Elbow joint', 'Wrist joint');
+        legend('Base Joint', 'Elbow Joint', 'Wrist Joint');
         grid on;       
     end
     
     %writes a .csv file for just the arm's joint velocities
-    Joint1Velocities = diff(m(:,1).'*degreesPerTics);
-    Joint2Velocities = diff(m(:,4).'*degreesPerTics);
-    Joint3Velocities = diff(m(:,7).'*degreesPerTics);
+    joint1Velocities = diff(m(:,1).'*degreesPerTics);
+    joint2Velocities = diff(m(:,4).'*degreesPerTics);
+    joint3Velocities = diff(m(:,7).'*degreesPerTics);
     dlmwrite('JointVelocities.csv', time, '-append');
-    dlmwrite('JointVelocities.csv', Joint1Velocities, '-append');
-    dlmwrite('JointVelocities.csv', Joint2Velocities, '-append');
-    dlmwrite('JointVelocities.csv', Joint3Velocities, '-append');
+    dlmwrite('JointVelocities.csv', joint1Velocities, '-append');
+    dlmwrite('JointVelocities.csv', joint2Velocities, '-append');
+    dlmwrite('JointVelocities.csv', joint3Velocities, '-append');
 
     if false %PLOT
         %plots the arm's joint velocities over time
         figure('Position', [864, 50, 864, 864]);
-        plot(time(1,1:(size(time,2)-1)), Joint1Velocities, 'r-*', time(1,1:(size(time,2)-1)), Joint2Velocities, 'b--x', time(1,1:(size(time,2)-1)), Joint3Velocities, 'g-.O', 'LineWidth', 2);
+        plot(time(1,1:(size(time,2)-1)), joint1Velocities, 'r-*', time(1,1:(size(time,2)-1)), joint2Velocities, 'b--x', time(1,1:(size(time,2)-1)), joint3Velocities, 'g-.O', 'LineWidth', 2);
         title('RBE 3001 Lab 2: Joint Velocities vs. Time');
         xlabel('Time (s)');
         ylabel('Joint Velocity (degrees/s)');
-        legend('Base joint', 'Elbow joint', 'Wrist joint');
+        legend('Base Joint', 'Elbow Joint', 'Wrist Joint');
         grid on;
     end
     
     %writes a .csv file for the X-Y-Z position of the TCP
-    for k = size(m,1)
-        Position = zeros(m,3);
-        Position(k,1:3) = fwkin3001([joint1Angles(1,k), joint2Angles(1,k), joint3Angles(1,k)]).';
-        xPosition = Position(:,1).';
-        yPosition = Position(:,2).';
-        zPosition = Position(:,3).';
+    Position = zeros(size(m,1),3);
+    for k = 1:size(m,1)
+        Position(k,1:3) = fwkin3001([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)]).';
     end
+    xPosition = Position(:,1).';
+    yPosition = Position(:,2).';
+    zPosition = Position(:,3).';
     dlmwrite('X-Y-Z-Position.csv', time, '-append');
     dlmwrite('X-Y-Z-Position.csv', xPosition, '-append');
     dlmwrite('X-Y-Z-Position.csv', yPosition, '-append');
@@ -234,7 +234,10 @@ if DATALOG
         legend('X Position', 'Y Position', 'Z Position');
         grid on;
     end
-
+    
+    if DEBUG
+        disp(Position);
+    end
     
 end
 
