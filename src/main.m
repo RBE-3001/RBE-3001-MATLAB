@@ -12,8 +12,8 @@ import java.lang.*;
 
 pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 
-DEBUG   = true;          % enables/disables debug prints
-PLOT    = false;          % enables/diables plotting
+DEBUG   = false;          % enables/disables debug prints
+PLOT    = true;          % enables/diables plotting
 DATALOG = true;          % enables/disables data logging
 degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
                             %this is also in stickModel.m
@@ -81,15 +81,25 @@ end
 %viaPts(3,41) = -36;
 %}
 
-p = [300, 200, 300, 300, 300;
-     100, 100, 100, 200, 100;
-     135, 135, 135, 135, 135];
-holdSize = 3;
+%takes a maxix of X-Y-Z set-points and uses inverse kinematics to produce
+%a trajectory with variable data resolution
+%X-Y-Z set-points:
+p = [300, 200,   0, -200, -300;  % X-axis poistion values
+     100, 100  100,  100,  100;  % Y-axis poistion values
+     135, 300, 135,  300,  135]  % Z-axis poistion values
+ 
+%set data resultion (number of data points per set-point)
+ holdSize = 10;
 
+ %builds trajectory using inverse kinimatics
 viaPts = zeros(3,holdSize*size(p,2));
-for k = 1:size(p,2) 
-    viaPt = ikin3001(p(:,k))/degreesPerTics;
-    viaPts(:,holdsize*(k-1)+1:holdsize*k ) = viaPt;
+for k = 1:size(p,2)
+    viaPt = zeros(3,1);
+    viaPt = ikin3001(p(:,k))
+    viaPt = viaPt/degreesPerTics
+    for j = 1:holdSize
+        viaPts(:,(j+(k-1)*holdSize)) = viaPt(:,:)
+    end
 end
 
 %displays the set-points matrix
@@ -153,7 +163,7 @@ for k = 1:size(viaPts,2)
         end
     end
     
-    pause(1) %timeit(returnPacket) !FIXME why is this needed?
+    pause(0.2) %timeit(returnPacket) !FIXME why is this needed?
 end
 
 if DATALOG

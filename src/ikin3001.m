@@ -1,11 +1,11 @@
 function S = ikin3001(p)
 try
     %test point
-    %p = ([200;100;135]);
+    %p = ([2000;100;135]);
     
-    px = p(1,1)
-    py = p(2,1)
-    pz = p(3,1)
+    px = p(1,1);
+    py = p(2,1);
+    pz = p(3,1);
     
     %Links (mm)
     L1 = 135;
@@ -18,4 +18,8 @@ try
     theta3 = acosd((-(L2)^2-(L3)^2+(L4)^2)/(2*L2*L3));
 
     S = [theta1 ; theta2; theta3];
+catch
+    %input errors lead to this message
+    message = sprintf('Desired position x=%f, y=%f, z=%f, is out of reach.',px, py, pz);
+    error(message);
 end
