@@ -184,12 +184,11 @@ if DATALOG
         %plots the arm's joint angles over time
         figure('Position', [0, 50, 864, 864]);
         plot(time, Joint1Angles, 'r-*', time, Joint2Angles, 'b--x', time, Joint3Angles, 'g-.O', 'LineWidth', 2);
-        title('RBE 3001 Lab 2: Joint Angles vs. Time');
+        title('RBE 3001 Lab 3: Joint Angles vs. Time');
         xlabel('Time (s)');
         ylabel('Joint Angle (degrees)');
         legend('Base joint', 'Elbow joint', 'Wrist joint');
-        grid on;
-        
+        grid on;       
     end
     
     %writes a .csv file for just the arm's joint velocities
@@ -201,7 +200,7 @@ if DATALOG
     dlmwrite('JointVelocities.csv', Joint2Velocities, '-append');
     dlmwrite('JointVelocities.csv', Joint3Velocities, '-append');
 
-    if PLOT
+    if false %PLOT
         %plots the arm's joint velocities over time
         figure('Position', [864, 50, 864, 864]);
         plot(time(1,1:(size(time,2)-1)), Joint1Velocities, 'r-*', time(1,1:(size(time,2)-1)), Joint2Velocities, 'b--x', time(1,1:(size(time,2)-1)), Joint3Velocities, 'g-.O', 'LineWidth', 2);
@@ -210,21 +209,31 @@ if DATALOG
         ylabel('Joint Velocity (degrees/s)');
         legend('Base joint', 'Elbow joint', 'Wrist joint');
         grid on;
-        
     end
     
     %writes a .csv file for the X-Y-Z position of the TCP
     for k = size(m,1)
         Position = zeros(m,3);
-        Position = fwkin3001(
-        xPosition = (m(:,1).'*degreesPerTics);
-        yPosition = diff(m(:,4).'*degreesPerTics);
-        zPosition = diff(m(:,7).'*degreesPerTics);
+        Position(k,1:3) = fwkin3001([joint1Angles(1,k), joint2Angles(1,k), joint3Angles(1,k)]).';
+        xPosition = Position(:,1).';
+        yPosition = Position(:,2).';
+        zPosition = Position(:,3).';
     end
     dlmwrite('X-Y-Z-Position.csv', time, '-append');
     dlmwrite('X-Y-Z-Position.csv', xPosition, '-append');
     dlmwrite('X-Y-Z-Position.csv', yPosition, '-append');
     dlmwrite('X-Y-Z-Position.csv', zPosition, '-append');
+    
+    if PLOT
+        %plots the X-Y-Z Position of the TCP over time
+        figure('Position', [864, 50, 864, 864]);
+        plot(time, xPosition, 'r-*', time, yPosition, 'b--x', time, zPosition, 'g-.O', 'LineWidth', 2);
+        title('RBE 3001 Lab 3: X-Y-Z Position of the TCP  vs. Time');
+        xlabel('Time (s)');
+        ylabel('Position of the TCP (mm)');
+        legend('X Position', 'Y Position', 'Z Position');
+        grid on;
+    end
 
     
 end
