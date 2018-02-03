@@ -213,6 +213,20 @@ if DATALOG
         
     end
     
+    %writes a .csv file for the X-Y-Z position of the TCP
+    for k = size(m,1)
+        Position = zeros(m,3);
+        Position = fwkin3001(
+        xPosition = (m(:,1).'*degreesPerTics);
+        yPosition = diff(m(:,4).'*degreesPerTics);
+        zPosition = diff(m(:,7).'*degreesPerTics);
+    end
+    dlmwrite('X-Y-Z-Position.csv', time, '-append');
+    dlmwrite('X-Y-Z-Position.csv', xPosition, '-append');
+    dlmwrite('X-Y-Z-Position.csv', yPosition, '-append');
+    dlmwrite('X-Y-Z-Position.csv', zPosition, '-append');
+
+    
 end
 
 % Clear up memory upon termination
