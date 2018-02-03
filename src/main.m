@@ -13,7 +13,7 @@ import java.lang.*;
 pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 
 DEBUG   = true;          % enables/disables debug prints
-PLOT    = true;          % enables/diables plotting
+PLOT    = false;          % enables/diables plotting
 DATALOG = true;          % enables/disables data logging
 degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
                             %this is also in stickModel.m
@@ -23,34 +23,6 @@ delete armEncoderValues.csv;
 delete JointAngles.csv;
 delete JointVelocities.csv;
 
-%{
-%Set up PID for the arm at the beginning of runtime
-%Server ID, see SERVER_ID in PidConfigServer.h in Nucleo code
-PID_SERVER_ID = 65;
-
-%PID values for the arm
-pidValues = [0.005, 0, 0, 1, 0;     %Base
-             0.005, 0, 0, 1, 0;     %Shoulder
-             0.005, 0, 0, 1, 0];    %Wrist
-
-pidPacket = zeros(15, 1, 'single');
-         
-for a = 0:size(pidValues,2)-1
-    
-     %joint 1 packet
-    pidPacket(a*3+1) = pidValues(1,a+1);
-    
-    %joint 2 packet
-    pidPacket(a*3+2) = pidValues(2,a+1);
-    
-    %joint 3 packet
-    pidPacket(a*3+3) = pidValues(3,a+1);
-    
-    % Send packet to the server
-    returnPIDPacket = pp.command(PID_SERVER_ID, pidPacket)
-    
-end
-%}
 % Create a PacketProcessor object to send data to the nucleo firmware
 SERV_ID = 37;            % we will be talking to server ID 37 on
 % the Nucleo
@@ -59,37 +31,6 @@ SERV_ID = 37;            % we will be talking to server ID 37 on
 % bytes for this purpose. Recall that the HID interface supports
 % packet sizes up to 64 bytes.
 packet = zeros(15, 1, 'single');
-
-% The following code generates a sinusoidal trajectory to be
-% executed on joint 1 of the arm and iteratively sends the list of
-% setpoints to the Nucleo firmware.
-
-%viaPts = [0, -400, 0, 400, 0, -400, 0];
-
-
-% the following is a null trajectory of five positions so that there will
-% be five sets of arm data replyed to the status request
-%viaPts = [0, 0, 0, 0, 0, 0];
-
-%The following code generates a repeating trajectory for collecting step response
-%data; the trajectory is between two points 45 degrees apart
-%{
-numRepeats = 2;
-holdSize = 10;
-numRows = numRepeats*holdSize*2;
-viaPts(1:numRows) = 0;
-for j = 1:holdSize*2:numRows
-    disp(j)
-    viaPts(1,j:j+holdSize) = 400;
-end
-%}
-
-
-%creates a full trajectory with set-points for each joint
-%viaPts = zeros(3,5);
-%viaPts(1,:) = [0, 0, 0, 0, 0]; %base joint
-%viaPts(2,:) = [839, 227, -8, 839, 839]; %elbow joint
-%viaPts(3,:) = [-36, -191, -1218, -36, -36]; %wrist joint
 
 %{
 %creates a full trajectory with the same set-point for each joint with data points
@@ -103,7 +44,7 @@ for k = 1:size(setPts,2)
 end
 %}
 
-
+%{
 %creates a full trajectory with set-points for each joint in a triangle
 %this is the hard-coded output of the cubicPoly function that we had
 %trouble with, but this does a good job of linear interpolation
@@ -138,8 +79,18 @@ counter = counter + 1;
 end
 %viaPts(2,41) = 839;
 %viaPts(3,41) = -36;
+%}
 
+p = [300, 200, 300, 300, 300;
+     100, 100, 100, 200, 100;
+     135, 135, 135, 135, 135];
+holdSize = 3;
 
+viaPts = zeros(3,holdSize*size(p,2));
+for k = 1:size(p,2) 
+    viaPt = ikin3001(p(:,k))/degreesPerTics;
+    viaPts(:,holdsize*(k-1)+1:holdsize*k ) = viaPt;
+end
 
 %displays the set-points matrix
 if DEBUG
@@ -202,12 +153,12 @@ for k = 1:size(viaPts,2)
         end
     end
     
-    pause(0.01) %timeit(returnPacket) !FIXME why is this needed?
+    pause(1) %timeit(returnPacket) !FIXME why is this needed?
 end
 
 if DATALOG
 
-    %writes the temporary matrix data to a .csv file
+    %writes the temporary encoder matrix data to a .csv file
     csvwrite('armEncoderValues.csv',m);
 
     %writes a .csv file for just the arm's joint angles
