@@ -84,9 +84,9 @@ end
 %takes a maxix of X-Y-Z set-points and uses inverse kinematics to produce
 %a trajectory with variable data resolution
 %X-Y-Z set-points:
-p = [300, 200,   0, -200, -300;  % X-axis poistion values
-     100, 100  100,  100,  100;  % Y-axis poistion values
-     135, 300, 135,  300,  135]  % Z-axis poistion values
+p = [0, -0;  % X-axis poistion values
+     344.28, 169.28;  % Y-axis poistion values
+     135, 0];  % Z-axis poistion values
  
 %set data resultion (number of data points per set-point)
  holdSize = 10;
@@ -95,7 +95,7 @@ p = [300, 200,   0, -200, -300;  % X-axis poistion values
 viaPts = zeros(3,holdSize*size(p,2));
 for k = 1:size(p,2)
     viaPt = zeros(3,1);
-    viaPt = ikin3001(p(:,k))
+    viaPt = ikin3001(p(:,k), DEBUG)
     viaPt = viaPt/degreesPerTics
     for j = 1:holdSize
         viaPts(:,(j+(k-1)*holdSize)) = viaPt(:,:)
@@ -214,7 +214,7 @@ if DATALOG
     %writes a .csv file for the X-Y-Z position of the TCP
     Position = zeros(size(m,1),3);
     for k = 1:size(m,1)
-        Position(k,1:3) = fwkin3001([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)]).';
+        Position(k,1:3) = fwkin3001([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)],DEBUG).';
     end
     xPosition = Position(:,1).';
     yPosition = Position(:,2).';
@@ -236,6 +236,7 @@ if DATALOG
     end
     
     if DEBUG
+        disp('Position: X, Y, Z');
         disp(Position);
     end
     
