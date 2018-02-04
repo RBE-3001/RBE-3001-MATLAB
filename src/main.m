@@ -15,7 +15,7 @@ pp = PacketProcessor(7); % !FIXME why is the deviceID == 7?s
 DEBUG   = true;          % enables/disables debug prints
 PLOT    = true;          % enables/diables plotting
 DATALOG = true;          % enables/disables data logging
-degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
+degreesPerTics = 360/4096;    %calibrates the degrees per encoder tic
                             %this is also in stickModel.m
                             
 delete armEncoderValues.csv;
@@ -84,12 +84,12 @@ end
 %takes a maxix of X-Y-Z set-points and uses inverse kinematics to produce
 %a trajectory with variable data resolution
 %X-Y-Z set-points:
-p = [0, -0;  % X-axis poistion values
-     344.28, 169.28;  % Y-axis poistion values
-     135, 0];  % Z-axis poistion values
+p = [0, 0, 0;  % X-axis poistion values
+     355, 175, 175;  % Y-axis poistion values
+     135, 0, 0];  % Z-axis poistion values
  
 %set data resultion (number of data points per set-point)
- holdSize = 10;
+ holdSize = 15;
 
  %builds trajectory using inverse kinimatics
 viaPts = zeros(3,holdSize*size(p,2));
