@@ -30,9 +30,9 @@ function T = traceModel(q)
      lim = [-350, 350];
      xlim(lim);
      ylim(lim);
-     zlim([0, 700]);
+     zlim([-100, 600]);
      
-     axis([-350, 350, -350, 350, 0, 700]);
+     axis([-350, 350, -350, 350, -100, 600]);
      
     % center the figure on screen and resize it
          fig_pos = [0, 0, 900, 900];
@@ -60,7 +60,7 @@ function T = traceModel(q)
     xlabel('x-axis');
     ylabel('y-axis');
     zlabel('z-axis');
-    title('RBE 3001 Lab 2: Live Arm-position Plot');
+    title('RBE 3001 Lab 3: Live Arm-position Plot');
 
 hold off
     end
