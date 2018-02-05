@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% RBE3001 C18 Team 4: Hannah Baez, Alex Tacescu, Sam White
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%   RBE3001 C18 Team 4: Hannah Baez, Alex Tacescu, Sam White  %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 close all; clc; clear;
@@ -63,45 +63,6 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%{
-%creates a full trajectory with set-points for each joint in a triangle
-%this is the hard-coded output of the cubicPoly function that we had
-%trouble with, but this does a good job of linear interpolation
-viaPts = zeros(3,40);
-holdSize = 10;
-counter = 0;
-for u = holdSize*0+1:holdSize*1
-viaPts(1,u) = 0;
-viaPts(2,u) = 839-(839-227)/holdSize*counter;
-viaPts(3,u) = -36-(-36--191)/holdSize*counter;
-counter = counter + 1;
-end
-counter = 0;
-for u = holdSize*1+1:holdSize*2
-viaPts(1,u) = 0;
-viaPts(2,u) = 227-(227--8)/holdSize*counter;
-viaPts(3,u) = -191-(-191--36)/holdSize*counter;
-counter = counter + 1;
-end
-counter = 0;
-for u = holdSize*2+1:holdSize*3
-viaPts(1,u) = 0;
-viaPts(2,u) = -8-(-8-839)/holdSize*counter;
-viaPts(3,u) = -36-(-36--1218)/holdSize*counter; 
-counter = counter + 1;
-end
-for u = holdSize*3+1:holdSize*4
-viaPts(1,u) = 0;
-viaPts(2,u) = 839-(839-839)/holdSize*counter;
-viaPts(3,u) = -1218-(-1218--1218)/holdSize*counter; 
-counter = counter + 1;
-end
-%viaPts(2,41) = 839;
-%viaPts(3,41) = -36;
-%}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %takes a maxix of X-Y-Z set-points and uses inverse kinematics to produce
 %a trajectory with variable data resolution
 %X-Y-Z set-points:
@@ -114,26 +75,9 @@ p = [300,   0,   0, 300;
        0, 300,   0,   0;
        0,   0, 470,   0];
 %}
-%set data resultion (number of data points per set-point)
- holdSize = 25;
-
- %builds trajectory using inverse kinimatics
-viaPts = zeros(3,holdSize*size(p,2));
-for k = 1:size(p,2)
-    viaPt = zeros(3,1);
-    viaPt = real(ikin3001(p(:,k), DEBUG));
-    viaPt = viaPt/degreesPerTics;
-    for j = 1:holdSize
-        viaPts(:,(j+(k-1)*holdSize)) = viaPt(:,:)
-    end
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%displays the set-points matrix
-if DEBUG
-    viaPts
-end
+% increases the number of identical points for greater data resolution      
+P = linearInterpolation(p, 20, DEBUG);
+viaPts = pointResolution(P, 1, degreesPerTics, DEBUG);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -143,6 +87,13 @@ end
 m = zeros(size(viaPts,2),15);
 m(:,:) = 0;
 time = zeros(1, size(viaPts,2));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%displays a large mark to offset pre-comms debug information
+if DEBUG
+    disp('#######################################################################################################################################');
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -253,7 +204,7 @@ if DATALOG
         %plots the arm's joint velocities over time
         figure('Position', [864, 50, 864, 864]);
         plot(time(1,1:(size(time,2)-1)), joint1Velocities, 'r-*', time(1,1:(size(time,2)-1)), joint2Velocities, 'b--x', time(1,1:(size(time,2)-1)), joint3Velocities, 'g-.O', 'LineWidth', 2);
-        title('RBE 3001 Lab 2: Joint Velocities vs. Time');
+        title('RBE 3001 Lab 3: Joint Velocities vs. Time');
         xlabel('Time (s)');
         ylabel('Joint Velocity (degrees/s)');
         legend('Base Joint', 'Elbow Joint', 'Wrist Joint');
@@ -265,21 +216,21 @@ if DATALOG
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %writes a .csv file for just the arm's joint acceleration
-    joint1Velocities = diff(m(:,1).'*degreesPerTics);
-    joint2Velocities = diff(m(:,4).'*degreesPerTics);
-    joint3Velocities = diff(m(:,7).'*degreesPerTics);
-    dlmwrite('JointVelocities.csv', time, '-append');
-    dlmwrite('JointVelocities.csv', joint1Velocities, '-append');
-    dlmwrite('JointVelocities.csv', joint2Velocities, '-append');
-    dlmwrite('JointVelocities.csv', joint3Velocities, '-append');
+    joint1Accelerations = diff(diff(m(:,1)).'*degreesPerTics);
+    joint2Accelerations = diff(diff(m(:,4)).'*degreesPerTics);
+    joint3Accelerations = diff(diff(m(:,7)).'*degreesPerTics);
+    dlmwrite('JointAcclerations.csv', time, '-append');
+    dlmwrite('JointAcclerations.csv', joint1Accelerations, '-append');
+    dlmwrite('JointAcclerations.csv', joint2Accelerations, '-append');
+    dlmwrite('JointAcclerations.csv', joint3Accelerations, '-append');
 
     if PLOT
         %plots the arm's joint acceleration over time
         figure('Position', [864, 50, 864, 864]);
-        plot(time(1,1:(size(time,2)-1)), joint1Velocities, 'r-*', time(1,1:(size(time,2)-1)), joint2Velocities, 'b--x', time(1,1:(size(time,2)-1)), joint3Velocities, 'g-.O', 'LineWidth', 2);
-        title('RBE 3001 Lab 2: Joint Velocities vs. Time');
+        plot(time(1,1:(size(time,2)-2)), joint1Accelerations, 'r-*', time(1,1:(size(time,2)-2)), joint2Accelerations, 'b--x', time(1,1:(size(time,2)-2)), joint3Accelerations, 'g-.O', 'LineWidth', 2);
+        title('RBE 3001 Lab 3: Joint Acclerations vs. Time');
         xlabel('Time (s)');
-        ylabel('Joint Velocity (degrees/s)');
+        ylabel('Joint Acceleration (degrees/s^2)');
         legend('Base Joint', 'Elbow Joint', 'Wrist Joint');
         grid on;
     end
