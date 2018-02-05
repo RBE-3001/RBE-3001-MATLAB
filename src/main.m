@@ -16,7 +16,7 @@ DEBUG   = true;          % enables/disables debug prints
 PLOT    = true;          % enables/diables plotting
 DATALOG = true;          % enables/disables data logging
 degreesPerTics = 360/4096;    %calibrates the degrees per encoder tic
-                            %this is also in stickModel.m
+                              %this is also in stickModel.m
                             
 delete armEncoderValues.csv;
 delete JointAngles.csv;
@@ -84,19 +84,24 @@ end
 %takes a maxix of X-Y-Z set-points and uses inverse kinematics to produce
 %a trajectory with variable data resolution
 %X-Y-Z set-points:
-p = [0, 0, 0;  % X-axis poistion values
-     355, 175, 175;  % Y-axis poistion values
-     135, 0, 0];  % Z-axis poistion values
- 
+p = [355,   300, 250, 200;  % X-axis poistion values
+       0,     0,   0,   0;  % Y-axis poistion values
+     135,   135, 135, 135];  % Z-axis poistion values
+
+%{
+p = [300,   0,   0, 300;
+       0, 300,   0,   0;
+       0,   0, 470,   0];
+%}
 %set data resultion (number of data points per set-point)
- holdSize = 15;
+ holdSize = 10;
 
  %builds trajectory using inverse kinimatics
 viaPts = zeros(3,holdSize*size(p,2));
 for k = 1:size(p,2)
     viaPt = zeros(3,1);
     viaPt = ikin3001(p(:,k), DEBUG)
-    viaPt = viaPt/degreesPerTics
+    viaPt = viaPt/degreesPerTics;
     for j = 1:holdSize
         viaPts(:,(j+(k-1)*holdSize)) = viaPt(:,:)
     end
@@ -156,7 +161,7 @@ for k = 1:size(viaPts,2)
     %and a thin red line for path
     if PLOT
         %plots links andjoints
-        f1 = stickModel([m(k,1), m(k,4), m(k,7)]*degreesPerTics);
+        f1 = stickModel([m(k,1), m(k,4), m(k,7)]*degreesPerTics, degreesPerTics);
         %plots path
         if k > 1
             traceModel([m(k-1,1), m(k-1,4), m(k-1,7),m(k,1), m(k,4), m(k,7)]*degreesPerTics);

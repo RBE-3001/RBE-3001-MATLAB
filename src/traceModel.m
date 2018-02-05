@@ -10,11 +10,11 @@ function T = traceModel(q)
     %  = tdh( theta,      d,    alpha,      a)
     A1 = tdh(-q(1,1),    135,     -90,      0);
     A2 = tdh(-q(1,2),      0,       0,    175);
-    A3 = tdh(-q(1,3),      0,       0, 169.28);
+    A3 = tdh(-q(1,3),      0,       0,    180);
     %  = tdh( theta,      d,    alpha,      a)
     B1 = tdh(-q(1,4),    135,     -90,      0);
     B2 = tdh(-q(1,5),      0,       0,    175);
-    B3 = tdh(-q(1,6),      0,       0, 169.28);
+    B3 = tdh(-q(1,6),      0,       0,    180);
 
 % create a new figure, enable axes and grid
     T = gcf;

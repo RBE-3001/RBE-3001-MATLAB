@@ -1,8 +1,8 @@
-function T = stickModel(q)
+function T = stickModel(q,dpc)
 %close all;
 
-degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
-                            %this is also in stickModel.m
+degreesPerTics = dpc;    %calibrates the degrees per encoder tic
+
 %variables
     %input = [theta1, theta2,   theta3]
     %    q = [     0,    15,       0];
@@ -12,7 +12,7 @@ degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
     %  = tdh( theta,      d,    alpha,      a)
     A1 = tdh(-q(1,1),    135,     -90,      0);
     A2 = tdh(-q(1,2),      0,       0,    175);
-    A3 = tdh(-q(1,3),      0,       0, 169.28);
+    A3 = tdh(-q(1,3),      0,       0,    180);
 
 % create a new figure, enable axes and grid
     T = gcf;

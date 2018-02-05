@@ -14,7 +14,8 @@ d3 = 0;
 %link lenth (mm)
 a1 = 0;
 a2 = 175;
-a3 = 169.28;
+%a3 = 169.28;
+a3 = 180;
 
 %twist angle (degrees)
 alpha1 = -90;
