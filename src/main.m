@@ -79,7 +79,7 @@ p = [300,   0,   0, 300;
 %}
       
 % linear interpolation between all set-points
-P = linearInterpolation(p, 20, DEBUG);
+P = linearInterpolation(p, 1, DEBUG);
 
 % Can increase the number of identical points for greater data resolution when points are far apart.
 % Converts x-y-z points (mm) to encoder values

@@ -1,7 +1,5 @@
 function S = ikin3001(p,d)
-try
-    
-    
+try        
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -38,19 +36,19 @@ try
     end
     
     if theta1 > 90 || theta1 < -90
-        error('Theta1 is out of bounds');
-        error('Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+        msg = sprintf('Theta1 is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+        error();
     elseif theta2 > 120 || theta2 < -10
-        error('Theta2 is out of bounds');
-        error('Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+        msg = sprintf('Theta2 is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+        error();
     elseif theta3 > 130 || theta3 < -130
-        error('Theta3 is out of bounds');
-        error('Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+        msg = sprintf('Theta3 is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+        error();
     else
         S = [theta1 ; theta2; theta3];
     end
     
 catch
     %input errors lead to this message
-    error('Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+    error(msg);
 end
