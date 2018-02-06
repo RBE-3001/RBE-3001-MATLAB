@@ -20,15 +20,25 @@ try
     theta1 = atan2d(py,px);
     theta2 = atan2d( ( pz-L1 ), ( sqrt( (px)^2 + (py)^2 ) ) ) + acosd( ( (L2)^2 + (L4)^2 - (L3)^2 ) / (2*L2*L4));        
     theta3 = -acosd(-((L3)^2+(L2)^2-(L4)^2)/(2*L2*L3));
-
-    S = [theta1 ; theta2; theta3];
-    
+        
     if DEBUG
         disp(sprintf('theta1 = %f, theta2 = %f, theta3 = %f', theta1, theta2, theta3));
     end
     
+    if theta1 > 180 || theta1 < -180
+        error('Theta1 is out of bounds');
+        error('Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+    elseif theta2 > 200 || theta2 < -10
+        error('Theta2 is out of bounds');
+        error('Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+    elseif theta3 > 200 || theta3 < -45
+        error('Theta3 is out of bounds');
+        error('Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+    else
+        S = [theta1 ; theta2; theta3];
+    end
+    
 catch
     %input errors lead to this message
-    message = sprintf('Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
-    error(message);
+    error('Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
 end
