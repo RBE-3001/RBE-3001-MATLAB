@@ -44,6 +44,12 @@ for u = 1:size(p,1)
         %start/stop positions (mm)
         q_0     = positions(1,1);
         q_f     = positions(2,1);
+        
+        if DEBUG
+            positions
+            q_0
+            q_f
+        end
         %difference in position (mm)
         q_d     = q_f - q_0;
         %start/stop velocity (degrees/s)
