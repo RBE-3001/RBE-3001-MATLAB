@@ -35,7 +35,7 @@ try
     if DEBUG
         disp(sprintf('theta1 = %f, theta2 = %f, theta3 = %f', theta1, theta2, theta3));
     end
-    %{
+    
     if theta1 > 90 || theta1 < -90
         msg = sprintf('Theta1 is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
         error();
@@ -46,9 +46,8 @@ try
         msg = sprintf('Theta3 is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
         error();
     else
-    %}
         S = [theta1 ; theta2; theta3];
-    %end
+    end
     
 catch
     %input errors lead to this message
