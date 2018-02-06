@@ -37,13 +37,13 @@ try
     end
     
     if theta1 > 90 || theta1 < -90
-        msg = sprintf('Theta1 is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+        msg = sprintf('theta1 = %f is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.', theta1, px, py, pz);
         error();
-    elseif theta2 > 130 || theta2 < -10
-        msg = sprintf('Theta2 is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+    elseif theta2 > 135 || theta2 < -15
+        msg = sprintf('theta2 = %f is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.', theta2, px, py, pz);
         error();
     elseif theta3 > 130 || theta3 < -130
-        msg = sprintf('Theta3 is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
+        msg = sprintf('theta3 = %f is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.', theta3, px, py, pz);
         error();
     else
         S = [theta1 ; theta2; theta3];

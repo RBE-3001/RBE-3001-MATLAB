@@ -29,12 +29,18 @@ if DEBUG
     qT
 end
 
+%loop for rows (makes a trajectory for the x-axis, then y-axis, then %z-axis)
 for u = 1:size(p,1)
     
+    %resets the timeOffset back to zero
     timeOffset = 0;
-    
+   
+    %loop for columns (makes a tracjectory between points in different
+    %columns in a specific row)
     for y = 1:(size(p,2)-1)
         
+        %grabs the two points to interpolate between from the the input
+        %trajectory
         positions = [p(u,y); p(u,y+1)];
         
         if DEBUG
@@ -50,6 +56,7 @@ for u = 1:size(p,1)
             q_0
             q_f
         end
+        
         %difference in position (mm)
         q_d     = q_f - q_0;
         %start/stop velocity (degrees/s)
@@ -111,7 +118,6 @@ for u = 1:size(p,1)
                 timeOffset
             end
             
-            
             t(1,j) = time/n*j + timeOffset;
         
         end
@@ -132,11 +138,12 @@ for u = 1:size(p,1)
                 disp(sprintf('u = %f, y = %f, k = %f, timeOffset = %f', u, y, k, timeOffset));
                 
             end
-             
+            %fills in each trajectory point between the start and stop positions
             qT(u,((y-1)*n+k+1)) = A(1,1) + A(2,1)*(t(1,k))^1 + A(3,1)*(t(1,k))^2 + A(4,1)*(t(1,k))^3 + A(5,1)*(t(1,k))^4  +A(6,1)*(t(1,k))^5;
 
         end
         
+        %incriments time as the columns advance
         timeOffset = timeOffset + time;
         
     end

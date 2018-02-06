@@ -68,16 +68,17 @@ end
 %takes a maxix of X-Y-Z set-points and uses inverse kinematics to produce
 %a trajectory with variable data resolution
 %X-Y-Z set-points:
-p = [ 250, 175,  50,  250;  % X-axis poistion values
-     -200, -50, 250, -200;  % Y-axis poistion values
-      300, -50, 250,  300];  % Z-axis poistion values
+
+p = [ 233.85,   269.38,    247, 275.74, 230.93;  % X-axis poistion values
+     -110.82,  -109.65,  9.572, 120.34, 117.58;  % Y-axis poistion values
+      377.33,  -2.7074, 386.96, 6.1789, 372.87];  % Z-axis poistion values
 
 %{
-p = [300,   0,   0, 300;
-       0, 300,   0,   0;
-       0,   0, 470,   0];
+p = [355, 250;
+    0, 15;
+    135, 135];
 %}
-
+      
 % quintic Polynomial interpolation between all setpoints
 P = quinticPoly(p, 20, 3, DEBUG);
       
