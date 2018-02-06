@@ -1,12 +1,20 @@
 function T = stickModel(q,dpc)
-%close all;
 
-degreesPerTics = dpc;    %calibrates the degrees per encoder tic
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %variables
+    %{
     %input = [theta1, theta2,   theta3]
-    %    q = [     0,    15,       0];
+         q = [     0,    15,       0];
+    %}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
+    
+    degreesPerTics = dpc;    %calibrates the degrees per encoder tic
+
    
 %transform matrices
     %  = tdh( theta,      d,    alpha,      a)

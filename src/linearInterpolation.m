@@ -1,14 +1,19 @@
 function Pos = linearInterpolation(p, r, d)
-    %test data
-    %{
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     p = [300,   0,   0, 300;
            0, 300,   0,   0;
-           0,   0, 470,   0];
+           0,   0, 450,   0];
     r = 10;
+
     d = true;
- %}
     
-    DEBUG = d;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+DEBUG = d;
        
     %number of points to spread difference across
     holdSize = r;
@@ -23,9 +28,9 @@ function Pos = linearInterpolation(p, r, d)
     for j = 1:(size(p,2)-1)
         
         for u = holdSize*(j-1)+1:holdSize*(j)
-            Pos(1,u) = p(1,j)-(p(1,j)-p(1,j+1))/holdSize*counter;
-            Pos(2,u) = p(2,j)-(p(2,j)-p(2,j+1))/holdSize*counter;
-            Pos(3,u) = p(3,j)-(p(3,j)-p(3,j+1))/holdSize*counter;
+            Pos(1,u) = p(1,j)-(p(1,j)- p(1,j+1))/holdSize*counter;
+            Pos(2,u) = p(2,j)-(p(2,j)- p(2,j+1))/holdSize*counter;
+            Pos(3,u) = p(3,j)-(p(3,j)- p(3,j+1))/holdSize*counter;
             counter = counter + 1;
         end
         

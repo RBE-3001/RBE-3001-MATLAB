@@ -33,6 +33,8 @@ delete armEncoderValues.csv;
 delete JointAngles.csv;
 delete JointVelocities.csv;
 delete X-Y-Z-Position.csv;
+delete JointAcceletations.csv;
+delete TCP.csv;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -75,8 +77,12 @@ p = [300,   0,   0, 300;
        0, 300,   0,   0;
        0,   0, 470,   0];
 %}
-% increases the number of identical points for greater data resolution      
+      
+% linear interpolation between all set-points
 P = linearInterpolation(p, 20, DEBUG);
+
+% Can increase the number of identical points for greater data resolution when points are far apart.
+% Converts x-y-z points (mm) to encoder values
 viaPts = pointResolution(P, 1, degreesPerTics, DEBUG);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

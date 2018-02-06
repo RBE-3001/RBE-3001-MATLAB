@@ -1,14 +1,26 @@
 function S = ikin3001(p,d)
 try
-    %d = true;
-    DEBUG = d;
     
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %{
     %test point (x, y, z) (units: mm)
-    %p = ([300;100;135]);
     
+    p = ([300;100;135]);
+    
+    d = true;
+    %}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    DEBUG = d;
+
+        
     px = p(1,1);
     py = p(2,1);
     pz = p(3,1);
+    
     
     %Links (mm)
     L1 = 135;
@@ -25,13 +37,13 @@ try
         disp(sprintf('theta1 = %f, theta2 = %f, theta3 = %f', theta1, theta2, theta3));
     end
     
-    if theta1 > 180 || theta1 < -180
+    if theta1 > 90 || theta1 < -90
         error('Theta1 is out of bounds');
         error('Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
-    elseif theta2 > 200 || theta2 < -10
+    elseif theta2 > 120 || theta2 < -10
         error('Theta2 is out of bounds');
         error('Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
-    elseif theta3 > 200 || theta3 < -45
+    elseif theta3 > 130 || theta3 < -130
         error('Theta3 is out of bounds');
         error('Desired position x = %f, y = %f, z = %f, is out of reach.',px, py, pz);
     else
