@@ -3,7 +3,7 @@ function qT = quinticPoly(p, n, time, d)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%{
 %initial trajectory
 p = [ 250, 175,  50,  250;  % X-axis poistion values
      -200, -50, 250, -200;  % Y-axis poistion values
@@ -16,7 +16,7 @@ n = 10;
 time = 5;
 
 d = true;
-
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 DEBUG = d;
@@ -122,7 +122,10 @@ for u = 1:size(p,1)
          
         
         %builds the quintic trajectory with the quintic function
+        if y == 1
         qT(u,1) = A(1,1); 
+        end
+        
         for k = 1:n
             if DEBUG
                 qT
