@@ -3,11 +3,11 @@ function qT = quinticPoly(p, n, time, d)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%{
+
 %initial trajectory
-p = [300,   0,   0, 300;
-       0, 300,   0,   0;
-       0,   0, 470,   0];
+p = [ 250, 175,  50,  250;  % X-axis poistion values
+     -200, -50, 250, -200;  % Y-axis poistion values
+      300, -50, 250,  300];  % Z-axis poistion values
 
 %number of points between two points
 n = 10;
@@ -16,17 +16,16 @@ n = 10;
 time = 5;
 
 d = true;
-%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 DEBUG = d;
 
 
 %Uses quintic function to build the quintic trajectory
-qt = zeros(3, ((size(p,2)-1)*n)+1);
+qT = zeros(3, ((size(p,2)-1)*n)+1);
 
 if DEBUG
-    qt
+    qT
 end
 
 for u = 1:size(p,1)
@@ -105,15 +104,15 @@ for u = 1:size(p,1)
          
         
         %builds the quintic trajectory with the quintic function
-        qt(u,1) = A(1,1); 
+        qT(u,1) = A(1,1); 
         for k = 1:n
             if DEBUG
-                qt
+                qT
                 disp(sprintf('u = %f, y = %f, k = %f, timeOffset = %f', u, y, k, timeOffset));
                 
             end
              
-            qt(u,((y-1)*n+k+1)) = A(1,1) + A(2,1)*(t(1,k))^1 + A(3,1)*(t(1,k))^2 + A(4,1)*(t(1,k))^3 + A(5,1)*(t(1,k))^4  +A(6,1)*(t(1,k))^5;
+            qT(u,((y-1)*n+k+1)) = A(1,1) + A(2,1)*(t(1,k))^1 + A(3,1)*(t(1,k))^2 + A(4,1)*(t(1,k))^3 + A(5,1)*(t(1,k))^4  +A(6,1)*(t(1,k))^5;
 
         end
         
@@ -125,7 +124,7 @@ end
 
 if DEBUG
     disp('final trajectory:');
-    qt
+    qT
 end
 
 end

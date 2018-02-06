@@ -77,9 +77,12 @@ p = [300,   0,   0, 300;
        0, 300,   0,   0;
        0,   0, 470,   0];
 %}
+
+% quintic Polynomial interpolation between all setpoints
+P = quinticPoly(p, 20, 3, DEBUG);
       
 % linear interpolation between all set-points
-P = linearInterpolation(p, 1, DEBUG);
+%P = linearInterpolation(p, 1, DEBUG);
 
 % Can increase the number of identical points for greater data resolution when points are far apart.
 % Converts x-y-z points (mm) to encoder values
