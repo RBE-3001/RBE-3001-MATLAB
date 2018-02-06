@@ -39,11 +39,11 @@ for u = 1:size(p,1)
             positions
         end
         
-        
-        
         %start/stop positions (mm)
         q_0     = positions(1,1);
         q_f     = positions(2,1);
+        %difference in position (mm)
+        q_d     = q_f - q_0;
         %start/stop velocity (degrees/s)
         v_0     = 0;
         v_f     = 0;
@@ -57,7 +57,7 @@ for u = 1:size(p,1)
                      q_f;
                      v_f;
                  alpha_f];
-        
+        if q_d ~= 0  
         %This is the main base matrix
         QBaseM = [1,  q_0, (q_0)^2,   (q_0)^3,    (q_0)^4,    (q_0)^5;
                   0,    1, 2*(q_0), 3*(q_0)^2,  4*(q_0)^3,  5*(q_0)^4;
@@ -68,10 +68,14 @@ for u = 1:size(p,1)
         
         %Quintic Polynomial Coeficents
         %A = [a0; a1; a2; a3; a4; a5]
-        %A = zeros(6,1);
+        
         
         %Matrix Output
         A = (inv(QBaseM))*terms;
+        
+        else 
+            A = zeros(6,1);
+        end
         
         if DEBUG
             A
@@ -90,7 +94,6 @@ for u = 1:size(p,1)
             
             
             t(1,j) = time/n*j + timeOffset;
-        
         
         end
         
@@ -117,4 +120,10 @@ for u = 1:size(p,1)
     end
             
 end
+
+if DEBUG
+    disp('final trajectory:');
+    qt
+end
+
 end
