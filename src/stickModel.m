@@ -1,18 +1,26 @@
-function T = stickModel(q)
-%close all;
+function T = stickModel(q,dpc)
 
-degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
-                            %this is also in stickModel.m
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %variables
+    %{
     %input = [theta1, theta2,   theta3]
-    %    q = [     0,    15,       0];
+         q = [     0,    15,       0];
+    %}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
+    
+    degreesPerTics = dpc;    %calibrates the degrees per encoder tic
+
    
 %transform matrices
     %  = tdh( theta,      d,    alpha,      a)
     A1 = tdh(-q(1,1),    135,     -90,      0);
     A2 = tdh(-q(1,2),      0,       0,    175);
-    A3 = tdh(-q(1,3),      0,       0, 169.28);
+    A3 = tdh(-q(1,3),      0,       0,    180);
 
 % create a new figure, enable axes and grid
     T = gcf;
@@ -28,9 +36,9 @@ degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
      lim = [-350, 350];
      xlim(lim);
      ylim(lim);
-     zlim([0, 700]);
+     zlim([-100, 600]);
      
-     axis([-350, 350, -350, 350, 0, 700]);
+     axis([-350, 350, -350, 350, -100, 600]);
      
     % center the figure on screen and resize it
          fig_pos = [0, 0, 900, 900];
@@ -56,7 +64,7 @@ degreesPerTics = 40/400;    %calibrates the degrees per encoder tic
     xlabel('x-axis');
     ylabel('y-axis');
     zlabel('z-axis');
-    title('RBE 3001 Lab 2: Live Arm-position Plot');
+    title('RBE 3001 Lab 3: Live Arm-position Plot');
 
 %radius of dots for joints
     radius = 10;

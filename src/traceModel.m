@@ -1,20 +1,24 @@
 function T = traceModel(q)
-%close all;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%{
 %variables
     %input = [theta1b, theta2b,   theta3b, theta1b, theta2b,   theta3b]
-       % q = [      0,      15,         0,       0,      25,         0];
-
+         q = [      0,      15,         0,       0,      25,         0];
+       %}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 %transform matrices
     %  = tdh( theta,      d,    alpha,      a)
     A1 = tdh(-q(1,1),    135,     -90,      0);
     A2 = tdh(-q(1,2),      0,       0,    175);
-    A3 = tdh(-q(1,3),      0,       0, 169.28);
+    A3 = tdh(-q(1,3),      0,       0,    180);
     %  = tdh( theta,      d,    alpha,      a)
     B1 = tdh(-q(1,4),    135,     -90,      0);
     B2 = tdh(-q(1,5),      0,       0,    175);
-    B3 = tdh(-q(1,6),      0,       0, 169.28);
+    B3 = tdh(-q(1,6),      0,       0,    180);
 
 % create a new figure, enable axes and grid
     T = gcf;
@@ -30,9 +34,9 @@ function T = traceModel(q)
      lim = [-350, 350];
      xlim(lim);
      ylim(lim);
-     zlim([0, 700]);
+     zlim([-100, 600]);
      
-     axis([-350, 350, -350, 350, 0, 700]);
+     axis([-350, 350, -350, 350, -100, 600]);
      
     % center the figure on screen and resize it
          fig_pos = [0, 0, 900, 900];
@@ -60,7 +64,7 @@ function T = traceModel(q)
     xlabel('x-axis');
     ylabel('y-axis');
     zlabel('z-axis');
-    title('RBE 3001 Lab 2: Live Arm-position Plot');
+    title('RBE 3001 Lab 3: Live Arm-position Plot');
 
 hold off
     end
