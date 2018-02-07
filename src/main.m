@@ -252,7 +252,7 @@ if DATALOG
     %writes a .csv file for the X-Y-Z position of the TCP
     Position = zeros(size(m,1),3);
     for k = 1:size(m,1)
-        Position(k,1:3) = fwkin3001([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)],DEBUG).';
+        Position(k,1:3) = fwkin3001([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], true, DEBUG).';
     end
     
     xPosition = Position(:,1).';
