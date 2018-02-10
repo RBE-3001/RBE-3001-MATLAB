@@ -36,6 +36,7 @@ delete X-Y-Z-Position.csv;
 delete JointAcceletations.csv;
 delete TCP.csv;
 delete detJp.csv;
+delete X-Y-Z-Velocity.csv;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -81,14 +82,14 @@ p = [355, 250;
 %}
       
 % quintic Polynomial interpolation between all setpoints
-%P = quinticPoly(p, 20, 3, DEBUG);
+P = quinticPoly(p, 10, 3, DEBUG);
       
 % linear interpolation between all set-points
-P = linearInterpolation(p, 1, DEBUG);
+%P = linearInterpolation(p, 1, DEBUG);
 
 % Can increase the number of identical points for greater data resolution when points are far apart.
 % Converts x-y-z points (mm) to encoder values
-viaPts = pointResolution(P, 20, degreesPerTics, DEBUG);
+viaPts = pointResolution(P, 1, degreesPerTics, DEBUG);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -207,7 +208,8 @@ if DATALOG
     joint1Velocities = diff(m(:,1).'*degreesPerTics);
     joint2Velocities = diff(m(:,4).'*degreesPerTics);
     joint3Velocities = diff(m(:,7).'*degreesPerTics);
-    dlmwrite('JointVelocities.csv', time, '-append');
+    timeV = time(1,1:(size(time,2)-1));
+    dlmwrite('JointVelocities.csv', timeV, '-append');
     dlmwrite('JointVelocities.csv', joint1Velocities, '-append');
     dlmwrite('JointVelocities.csv', joint2Velocities, '-append');
     dlmwrite('JointVelocities.csv', joint3Velocities, '-append');
@@ -215,7 +217,7 @@ if DATALOG
     if PLOT
         %plots the arm's joint velocities over time
         figure('Position', [864, 50, 864, 864]);
-        plot(time(1,1:(size(time,2)-1)), joint1Velocities, 'r-*', time(1,1:(size(time,2)-1)), joint2Velocities, 'b--x', time(1,1:(size(time,2)-1)), joint3Velocities, 'g-.O', 'LineWidth', 2);
+        plot(timeV, joint1Velocities, 'r-*', timeV, joint2Velocities, 'b--x', timeV, joint3Velocities, 'g-.O', 'LineWidth', 2);
         title(sprintf('RBE 3001 Lab %d: Joint Velocities vs. Time', lab));
         xlabel('Time (s)');
         ylabel('Joint Velocity (degrees/s)');
@@ -231,7 +233,8 @@ if DATALOG
     joint1Accelerations = diff(diff(m(:,1)).'*degreesPerTics);
     joint2Accelerations = diff(diff(m(:,4)).'*degreesPerTics);
     joint3Accelerations = diff(diff(m(:,7)).'*degreesPerTics);
-    dlmwrite('JointAcclerations.csv', time, '-append');
+    timeA = time(1,1:(size(time,2)-2));
+    dlmwrite('JointAcclerations.csv', timeA, '-append');
     dlmwrite('JointAcclerations.csv', joint1Accelerations, '-append');
     dlmwrite('JointAcclerations.csv', joint2Accelerations, '-append');
     dlmwrite('JointAcclerations.csv', joint3Accelerations, '-append');
@@ -239,7 +242,7 @@ if DATALOG
     if PLOT
         %plots the arm's joint acceleration over time
         figure('Position', [864, 50, 864, 864]);
-        plot(time(1,1:(size(time,2)-2)), joint1Accelerations, 'r-*', time(1,1:(size(time,2)-2)), joint2Accelerations, 'b--x', time(1,1:(size(time,2)-2)), joint3Accelerations, 'g-.O', 'LineWidth', 2);
+        plot(timeA, joint1Accelerations, 'r-*', timeA, joint2Accelerations, 'b--x', timeA, joint3Accelerations, 'g-.O', 'LineWidth', 2);
         title(sprintf('RBE 3001 Lab %d: Joint Acclerations vs. Time', lab));
         xlabel('Time (s)');
         ylabel('Joint Acceleration (degrees/s^2)');
@@ -288,7 +291,8 @@ if DATALOG
 %writes a .csv file for the determinant of Jp
     detJp = zeros(size(m,1),1);
     for k = 1:size(m,1)
-        detJp(k,1) = jacob0([m(k,1); m(k,4); m(k,7)]*degreesPerTics, DEBUG);
+        J = jacob0([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], DEBUG)
+        detJp(k,1) = det(J(1:3,:));
     end
     
     det = detJp(:,1).';
@@ -307,8 +311,39 @@ if DATALOG
         grid on;
     end
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%   save and plot TCP x-y-z  velocity   %%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
+    %writes a .csv file for the X-Y-Z velocity of the TCP
+    Velocity = zeros(size(m,1),3);
+    for k = 1:size(m,1)-1
+        Velocity(k,1:3) = fwddiffkin3001([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], [joint1Velocities(1,k); joint2Velocities(1,k); joint3Velocities(1,k)], DEBUG).';
+    end
+    
+    xVelocity = Velocity(1:(size(Velocity,1)-1),1).';
+    yVelocity = Velocity(1:(size(Velocity,1)-1),2).';
+    zVelocity = Velocity(1:(size(Velocity,1)-1),3).';
+    dlmwrite('X-Y-Z-Velocity.csv', timeV, '-append');
+    dlmwrite('X-Y-Z-Velocity.csv', xVelocity, '-append');
+    dlmwrite('X-Y-Z-Velocity.csv', yVelocity, '-append');
+    dlmwrite('X-Y-Z-Velocity.csv', zVelocity, '-append');
+    
+    if PLOT
+        %plots the X-Y-Z Velocity of the TCP over time
+        figure('Position', [864, 50, 864, 864]);
+        plot(timeV, xVelocity, 'r-*', timeV, yVelocity, 'b--x', timeV, zVelocity, 'g-.O', 'LineWidth', 2);
+        title(sprintf('RBE 3001 Lab %d: X-Y-Z Velocity of the TCP  vs. Time', lab));
+        xlabel('Time (s)');
+        ylabel('Velocity of the TCP (mm/s)');
+        legend('X Velocity', 'Y Velocity', 'Z Velocity');
+        grid on;
+    end
+    
+    if DEBUG  
+        disp('Velocity: X, Y, Z');
+        disp(Velocity);
+    end  
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     

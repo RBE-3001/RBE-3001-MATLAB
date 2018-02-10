@@ -65,6 +65,6 @@ end
 J
 disp(sprintf('determinant of Jp: %f',det(Jp)))
 disp(sprintf('rank of Jp: %f',rank(Jp)))
-R = det(Jp);
+R = J;
 
 end
