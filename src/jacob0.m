@@ -3,14 +3,14 @@ function R = jacob0 (q, d)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%{
 %test joint angles (units: degrees)
 theta1 = 0;
-theta2 = 0;
+theta2 = 90;
 theta3 = 0;
 q = [theta1; theta2; theta3];
 d = true;
-
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 DEBUG = d;
@@ -31,7 +31,19 @@ Jp = zeros(3, size(q, 1));
 Jo = zeros(3, size(q, 1));
 
 for y = 1:size(q,1)
-    Jp(1:3,y) = cross(R(1:3,y*4+3), (R(1:3,size(q,2))-R(1:3,y*4)));
+    if DEBUG
+        disp('a hat')
+        R(1:3,(y-1)*4+3)
+        disp('pe')
+        R(1:3,size(R,2))
+        disp('pi-1')
+        R(1:3,y*4)
+        disp('pe-(pi-1)')
+        R(1:3,size(R,2))-R(1:3,y*4)
+    end
+    
+    
+    Jp(:,y) = cross(R(1:3,(y-1)*4+3), (R(1:3,size(R,2))-R(1:3,y*4)));
 end
 
 %creates rotational velocities of Jacobian Matrix
@@ -49,6 +61,10 @@ if DEBUG
     J
 end
 
-
+%displays the jacobian and the determinant
+J
+disp(sprintf('determinant of Jp: %f',det(Jp)))
+disp(sprintf('rank of Jp: %f',rank(Jp)))
+R = det(Jp);
 
 end

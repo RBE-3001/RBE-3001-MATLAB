@@ -22,11 +22,11 @@ import java.lang.*;
 
 pp = PacketProcessor(7); % deviceID == 7
 
-DEBUG   = true;          % enables/disables debug prints
+DEBUG   = false;          % enables/disables debug prints
 PLOT    = true;          % enables/diables plotting
 DATALOG = true;          % enables/disables data logging
 degreesPerTics = 360/4096;    %calibrates the degrees per encoder tic
-                                                          
+lab = 4;                  %sets the lab number                                                          
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                                                             
 delete armEncoderValues.csv;
@@ -35,6 +35,7 @@ delete JointVelocities.csv;
 delete X-Y-Z-Position.csv;
 delete JointAcceletations.csv;
 delete TCP.csv;
+delete detJp.csv;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -80,14 +81,14 @@ p = [355, 250;
 %}
       
 % quintic Polynomial interpolation between all setpoints
-P = quinticPoly(p, 20, 3, DEBUG);
+%P = quinticPoly(p, 20, 3, DEBUG);
       
 % linear interpolation between all set-points
-%P = linearInterpolation(p, 1, DEBUG);
+P = linearInterpolation(p, 1, DEBUG);
 
 % Can increase the number of identical points for greater data resolution when points are far apart.
 % Converts x-y-z points (mm) to encoder values
-viaPts = pointResolution(P, 1, degreesPerTics, DEBUG);
+viaPts = pointResolution(P, 20, degreesPerTics, DEBUG);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -154,11 +155,12 @@ for k = 1:size(viaPts,2)
     %and a thin red line for path
     if PLOT
         %plots links andjoints
-        f1 = stickModel([m(k,1), m(k,4), m(k,7)]*degreesPerTics, degreesPerTics);
+        f1 = stickModel([m(k,1), m(k,4), m(k,7)]*degreesPerTics, degreesPerTics, lab);
         %plots path
         if k > 1
-            traceModel([m(k-1,1), m(k-1,4), m(k-1,7),m(k,1), m(k,4), m(k,7)]*degreesPerTics);
+            traceModel([m(k-1,1), m(k-1,4), m(k-1,7),m(k,1), m(k,4), m(k,7)]*degreesPerTics, lab);
         end
+        
     end
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -190,7 +192,7 @@ if DATALOG
         %plots the arm's joint angles over time
         figure('Position', [0, 50, 864, 864]);
         plot(time, joint1Angles, 'r-*', time, joint2Angles, 'b--x', time, joint3Angles, 'g-.O', 'LineWidth', 2);
-        title('RBE 3001 Lab 3: Joint Angles vs. Time');
+        title(sprintf('RBE 3001 Lab %d: Joint Angles vs. Time', lab));
         xlabel('Time (s)');
         ylabel('Joint Angle (degrees)');
         legend('Base Joint', 'Elbow Joint', 'Wrist Joint');
@@ -214,7 +216,7 @@ if DATALOG
         %plots the arm's joint velocities over time
         figure('Position', [864, 50, 864, 864]);
         plot(time(1,1:(size(time,2)-1)), joint1Velocities, 'r-*', time(1,1:(size(time,2)-1)), joint2Velocities, 'b--x', time(1,1:(size(time,2)-1)), joint3Velocities, 'g-.O', 'LineWidth', 2);
-        title('RBE 3001 Lab 3: Joint Velocities vs. Time');
+        title(sprintf('RBE 3001 Lab %d: Joint Velocities vs. Time', lab));
         xlabel('Time (s)');
         ylabel('Joint Velocity (degrees/s)');
         legend('Base Joint', 'Elbow Joint', 'Wrist Joint');
@@ -238,7 +240,7 @@ if DATALOG
         %plots the arm's joint acceleration over time
         figure('Position', [864, 50, 864, 864]);
         plot(time(1,1:(size(time,2)-2)), joint1Accelerations, 'r-*', time(1,1:(size(time,2)-2)), joint2Accelerations, 'b--x', time(1,1:(size(time,2)-2)), joint3Accelerations, 'g-.O', 'LineWidth', 2);
-        title('RBE 3001 Lab 3: Joint Acclerations vs. Time');
+        title(sprintf('RBE 3001 Lab %d: Joint Acclerations vs. Time', lab));
         xlabel('Time (s)');
         ylabel('Joint Acceleration (degrees/s^2)');
         legend('Base Joint', 'Elbow Joint', 'Wrist Joint');
@@ -267,7 +269,7 @@ if DATALOG
         %plots the X-Y-Z Position of the TCP over time
         figure('Position', [864, 50, 864, 864]);
         plot(time, xPosition, 'r-*', time, yPosition, 'b--x', time, zPosition, 'g-.O', 'LineWidth', 2);
-        title('RBE 3001 Lab 3: X-Y-Z Position of the TCP  vs. Time');
+        title(sprintf('RBE 3001 Lab %d: X-Y-Z Position of the TCP  vs. Time', lab));
         xlabel('Time (s)');
         ylabel('Position of the TCP (mm)');
         legend('X Position', 'Y Position', 'Z Position');
@@ -278,7 +280,36 @@ if DATALOG
         disp('Position: X, Y, Z');
         disp(Position);
     end
-   
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%    save and plot determinant of Jp    %%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+    
+%writes a .csv file for the determinant of Jp
+    detJp = zeros(size(m,1),1);
+    for k = 1:size(m,1)
+        detJp(k,1) = jacob0([m(k,1); m(k,4); m(k,7)]*degreesPerTics, DEBUG);
+    end
+    
+    det = detJp(:,1).';
+
+    dlmwrite('detJp.csv', time, '-append');
+    dlmwrite('detJp.csv', det, '-append');
+    
+    if PLOT
+        %plots the determinant of Jp over time
+        figure('Position', [50, 50, 864, 864]);
+        plot(time, det, 'r-*', 'LineWidth', 2);
+        title(sprintf('RBE 3001 Lab %d: Determinant of Jacobian Position Matrix (Jp) vs. Time',lab));
+        xlabel('Time (s)');
+        ylabel('Determinant of Jp');
+        legend('Determinant of Jp');
+        grid on;
+    end
+
+
+    
+    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 end

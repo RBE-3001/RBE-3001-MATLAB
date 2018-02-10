@@ -1,4 +1,4 @@
-function T = traceModel(q)
+function T = traceModel(q,l)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -9,7 +9,9 @@ function T = traceModel(q)
          q = [      0,      15,         0,       0,      25,         0];
        %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
+lab = l;                 %sets the lab number
+
 %transform matrices
     %  = tdh( theta,      d,    alpha,      a)
     A1 = tdh(-q(1,1),    135,     -90,      0);
@@ -64,7 +66,7 @@ function T = traceModel(q)
     xlabel('x-axis');
     ylabel('y-axis');
     zlabel('z-axis');
-    title('RBE 3001 Lab 3: Live Arm-position Plot');
+    title(sprintf('RBE 3001 Lab %d: Live Arm-position Plot', lab));
 
 hold off
     end
