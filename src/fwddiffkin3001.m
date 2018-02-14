@@ -26,7 +26,7 @@ DEBUG = d;
 J = jacob0(q,DEBUG);
 Jp = J(1:3,:);
 
-%calculates the vecotr of tast-space velocities
+%calculates the vector of task-space velocities
 pd = inv(Jp)*qd;
 
 end

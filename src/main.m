@@ -291,7 +291,7 @@ if DATALOG
 %writes a .csv file for the determinant of Jp
     detJp = zeros(size(m,1),1);
     for k = 1:size(m,1)
-        J = jacob0([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], DEBUG)
+        J = jacob0([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], DEBUG);
         detJp(k,1) = det(J(1:3,:));
     end
     
@@ -315,7 +315,7 @@ if DATALOG
 %%%%%%%%%%%%%%%%   save and plot TCP x-y-z  velocity   %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    %writes a .csv file for the X-Y-Z velocity of the TCP
+    %writes a .csv file for the X-Y-Z velocity of the TCP using position
     Velocity = zeros(size(m,1),3);
     for k = 1:size(m,1)-1
         Velocity(k,1:3) = fwddiffkin3001([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], [joint1Velocities(1,k); joint2Velocities(1,k); joint3Velocities(1,k)], DEBUG).';

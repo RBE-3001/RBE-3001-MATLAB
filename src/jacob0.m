@@ -61,10 +61,13 @@ if DEBUG
     J
 end
 
-%displays the jacobian and the determinant
-J
-disp(sprintf('determinant of Jp: %f',det(Jp)))
-disp(sprintf('rank of Jp: %f',rank(Jp)))
+if DEBUG
+    %displays the jacobian and the determinant
+    J
+    disp(sprintf('determinant of Jp: %f',det(Jp)))
+    disp(sprintf('rank of Jp: %f',rank(Jp)))
+end
+
 R = J;
 
 end
