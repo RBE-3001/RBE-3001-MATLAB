@@ -162,6 +162,8 @@ for k = 1:size(viaPts,2)
             traceModel([m(k-1,1), m(k-1,4), m(k-1,7),m(k,1), m(k,4), m(k,7)]*degreesPerTics, lab);
         end
         
+        quiverModel([m(k,1), m(k,4), m(k,7)]*degreesPerTics, [m(k,2), m(k,5), m(k,8)]*degreesPerTics, DEBUG);
+        
     end
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
