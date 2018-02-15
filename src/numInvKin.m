@@ -4,20 +4,25 @@
     % pF -> final position
     % debug -> isDebug on
     
-function qD = numInvKin(q0, pF, debug)
+function qD = numInvKin(q0, pF, DEBUG, PLOT)
     
-    p0 = fwkin3001(q0, true, debug); 
+    p0 = fwkin3001(q0, true, DEBUG); 
     
-    jacob = jacob0(q0, debug);
+    jacob = jacob0(q0, DEBUG);
     try
         invJacob = pinv(jacob);
         try
             qD = (invJacob * (pF - p0)) - q0;
+            
+            if PLOT
+                
+            end
+            
         catch
-            % not in task space
+            error('Input point is outside taskspace: %f', p0);
         end
     catch 
-        % throw error
+        error('Jacobian is not inversible: %f', jacob);
     end
 
 end
