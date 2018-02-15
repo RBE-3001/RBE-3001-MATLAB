@@ -8,9 +8,21 @@ function qF = numInvKin(q0, pF, DEBUG)
     
     p0 = fwkin3001(q0, true, DEBUG); 
     
-    jacob = jacob0(q0, DEBUG);
+    jacobFull = jacob0(q0, DEBUG);
+    
+    jacob = jacobFull(1:3, :);
+    
+    if DEBUG
+        jacob
+    end
+    
     try
-        invJacob = pinv(jacob);
+        invJacob = inv(jacob);
+        
+        if DEBUG
+            invJacob
+        end
+        
         try
             qF = (invJacob * (pF - p0)) - q0;            
         catch
