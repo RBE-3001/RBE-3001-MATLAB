@@ -4,7 +4,7 @@
     % pF -> final position
     % debug -> isDebug on
     
-function qD = numInvKin(q0, pF, DEBUG, PLOT)
+function qF = numInvKin(q0, pF, DEBUG)
     
     p0 = fwkin3001(q0, true, DEBUG); 
     
@@ -12,12 +12,7 @@ function qD = numInvKin(q0, pF, DEBUG, PLOT)
     try
         invJacob = pinv(jacob);
         try
-            qD = (invJacob * (pF - p0)) - q0;
-            
-            if PLOT
-                
-            end
-            
+            qF = (invJacob * (pF - p0)) - q0;            
         catch
             error('Input point is outside taskspace: %f', p0);
         end
