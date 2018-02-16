@@ -44,6 +44,11 @@ delete X-Y-Z-Velocity.csv;
 SERV_ID = 37;            % we will be talking to server ID 37 on
 % the Nucleo
 
+DlgH = figure;
+H = uicontrol('Style', 'PushButton', ...
+                    'String', 'Break', ...
+                    'Callback', 'delete(gcbf)');
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Instantiate a packet - the following instruction allocates 64
@@ -76,19 +81,23 @@ p = [ 233.85,   269.38,    247, 275.74, 230.93;  % X-axis poistion values
       377.33,  -2.7074, 386.96, 6.1789, 372.87];  % Z-axis poistion values
 %}
 
-p = [355, 250;
-    0, 15;
+p = [355, 355;
+    0, 0;
     135, 135];
+tic
 
+while ishandle(H)
       
 % Cubic Polynomial interpolation between all setpoints
-P = cubicPoly(p, 10, 3, DEBUG);
+%P = cubicPoly(p, 10, 3, DEBUG);
 
 % quintic Polynomial interpolation between all setpoints
 %P = quinticPoly(p, 10, 3, DEBUG);
+
+p
       
 % linear interpolation between all set-points
-%P = linearInterpolation(p, 1, DEBUG);
+P = linearInterpolation(p, 2, DEBUG)
 
 % Can increase the number of identical points for greater data resolution when points are far apart.
 % Converts x-y-z points (mm) to encoder values
@@ -112,11 +121,12 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-tic %starts an elapse timer
+toc
 
 % Iterate through commands for joint values
 %size(matrix_name, 1 (rows) or 2 (columns))
-for k = 1:size(viaPts,2)
+
+    for k = 1:size(viaPts,2)
     
     %joint 1 set-point packet
     packet(1) = viaPts(1,k);
@@ -172,6 +182,20 @@ for k = 1:size(viaPts,2)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     pause(0.001) %timeit(returnPacket) !FIXME why is this needed?
+    end
+    
+    tempM = m(size(m,1),:);
+   
+    point1 = [355;0; 135];
+    
+    point2 = stickModel2D([tempM(1,1);tempM(1,4);tempM(1,7)], 4, DEBUG);
+
+    p = zeros(3,2);
+    
+    p(:,1) = point1;
+    p(:,2) = point2;
+    
+    pause(0.5);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

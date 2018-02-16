@@ -53,5 +53,5 @@ function ans = stickModel2D(q0, labNumber, DEBUG)
     axis([0 , 370, 0, 350]);
     title(sprintf('RBE Lab 3001 %d: Interactive Robot Arm Display', labNumber));
     
-    ans = qF;
+    ans = pF
 end
