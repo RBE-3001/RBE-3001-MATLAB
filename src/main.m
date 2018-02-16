@@ -81,8 +81,11 @@ p = [355, 250;
     135, 135];
 %}
       
+% Cubic Polynomial interpolation between all setpoints
+P = cubicPoly(p, 10, 3, DEBUG);
+
 % quintic Polynomial interpolation between all setpoints
-P = quinticPoly(p, 10, 3, DEBUG);
+%P = quinticPoly(p, 10, 3, DEBUG);
       
 % linear interpolation between all set-points
 %P = linearInterpolation(p, 1, DEBUG);
@@ -161,8 +164,8 @@ for k = 1:size(viaPts,2)
         if k > 1
             traceModel([m(k-1,1), m(k-1,4), m(k-1,7),m(k,1), m(k,4), m(k,7)]*degreesPerTics, lab);
         end
-        
-        quiverModel([m(k,1), m(k,4), m(k,7)]*degreesPerTics, [m(k,2), m(k,5), m(k,8)]*degreesPerTics, DEBUG);
+       
+        quiverModel([m(k,1); m(k,4); m(k,7)]*degreesPerTics, [m(k,2); m(k,5); m(k,8)]*degreesPerTics, 0.025, DEBUG);
         
     end
     

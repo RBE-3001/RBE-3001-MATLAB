@@ -1,16 +1,35 @@
-function T = quiverModel(q, v, d)
+function T = quiverModel(q, qd, s,  d)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%{
+%input = [theta1;   theta2;  theta3]
+     q = [     0;       15;       0];
+%input = [dtheta1; dtheta2; dtheta3]
+    qd = [      5;       5;       0];
+     
+d = false;
+s = 0.05;
+%}     
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 DEBUG = d;
+scale = s;
 
 %position of end effector
-x = q(1,1);
-y = q(2,1);
-z = q(3,1);
+tcp = fwkin3001(q, true, d);
+x = tcp(1,1);
+y = -tcp(2,1);
+z = tcp(3,1);
 
 %velocity of end effector
-u = v(1,1);
-v = v(2,1);
-w = v(3,1);
+pd = fwddiffkin3001(q, qd, d);
+
+u = pd(1,1);
+v = pd(2,1);
+w = pd(3,1);
 
 % create a new figure, enable axes and grid
 T = gcf;
@@ -37,7 +56,7 @@ T = gcf;
     view(45,45);
 
 %graphs the velocity vecotors
-quiver3(x, y, z, u, v, w);
+quiver3(x, y, z, u, v, w, scale);
 
 
 end

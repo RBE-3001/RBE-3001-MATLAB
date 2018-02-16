@@ -1,4 +1,4 @@
-function pd = fwddiffkin3001 (q, qd, d)
+function pd = fwddiffkin3001(q, qd, d)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -27,6 +27,6 @@ J = jacob0(q,DEBUG);
 Jp = J(1:3,:);
 
 %calculates the vector of task-space velocities
-pd = inv(Jp)*qd;
+pd = Jp*qd;
 
 end
