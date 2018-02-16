@@ -47,7 +47,7 @@ function ans = stickModel2D(q0, labNumber, DEBUG)
     qF = numInvKin(q0, pF, DEBUG);
     
     A2 = tdh(qF(2,1),      0,       0,    175);
-    A3 = tdh(vqF(3,1),      0,       0,    180);
+    A3 = tdh(qF(3,1),      0,       0,    180);
     
     F1 = A2;
     F2 = A2 * A3;
