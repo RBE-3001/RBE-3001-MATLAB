@@ -4,16 +4,13 @@ function ans = stickModel2D(q0, labNumber, DEBUG)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %variables
-    
+    %{
     %input = [theta1, theta2,   theta3]
          q0 = [     0;    -20;       30];
          labNumber = 4;
          DEBUG = true;
-    
+    %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-    lab = labNumber;                 %sets the lab number
    
 %transform matrices
     %  = tdh( theta,      d,    alpha,      a)
@@ -28,7 +25,7 @@ function ans = stickModel2D(q0, labNumber, DEBUG)
     z = [135, F1(2, 4) + 135, F2(2, 4) + 135];
     
     plot(x, z, 'linewidth', 5, 'Color', 'b');
-    xlabel('X-axis');
+    xlabel('X-axis');   
     ylabel('Z-axis');
     axis([0 , 370, 0, 350]);
     title(sprintf('RBE Lab 3001 %d: Interactive Robot Arm Display', labNumber));
@@ -37,11 +34,6 @@ function ans = stickModel2D(q0, labNumber, DEBUG)
     
     pF(3,1) = pF(2,1);
     pF(2,1) = 0;
-    
-    if DEBUG
-        q0
-        pF
-    end
 
 %get output from numerical Inverse Kinematic function
     qF = numInvKin(q0, pF, DEBUG);
