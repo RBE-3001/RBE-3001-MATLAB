@@ -1,4 +1,4 @@
-function T = fwkin3001(q,d)
+function T = fwkin3001(q,h,d)
 DEBUG = d;
 
 %joint angle (degrees)
@@ -43,6 +43,19 @@ if DEBUG
     disp(A3);
 end
 
-H = A1*A2*A3;
-T = H(1:3,4);
+%returns the homogenous transform matrix from frame zero to the EOAT
+if h
+    H = A1*A2*A3;
+    T = H(1:3,4);
+
+%returns a matrix with the homogenous transform matricies from frame zero
+%to each of the joints
+else
+    T = zeros(4,16);
+    T(:,1:4) = eye(4);
+    T(:,5:8) = A1;
+    T(:,9:12) = A1*A2;
+    T(:,13:16) = A1*A2*A3;
+end
+
 end

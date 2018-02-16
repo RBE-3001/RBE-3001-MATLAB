@@ -1,4 +1,4 @@
-function T = stickModel(q,dpc)
+function T = stickModel(q,dpc,l)
 
 
 
@@ -14,7 +14,7 @@ function T = stickModel(q,dpc)
     
     
     degreesPerTics = dpc;    %calibrates the degrees per encoder tic
-
+    lab = l;                 %sets the lab number
    
 %transform matrices
     %  = tdh( theta,      d,    alpha,      a)
@@ -64,7 +64,7 @@ function T = stickModel(q,dpc)
     xlabel('x-axis');
     ylabel('y-axis');
     zlabel('z-axis');
-    title('RBE 3001 Lab 3: Live Arm-position Plot');
+    title(sprintf('RBE 3001 Lab %d: Live Arm-position Plot', lab));
 
 %radius of dots for joints
     radius = 10;
