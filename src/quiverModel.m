@@ -5,21 +5,20 @@ function T = quiverModel(q, qd, s, f, d)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %{
 %input = [theta1;   theta2;  theta3]
-     q = [     1;       5;       4];
+     q = [     30;       45;       -73];
 %input = [dtheta1; dtheta2; dtheta3]
-    qd = [      0;      0;       9.8];
+    qd = [      1;      3;       9.8];
 
 %scale
-s = 0.05;
+s = norm(qd);
 
 %Force = true, Velocity = false
 f = true;
 
 %debug
-d = false;
+d = true;
 %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 DEBUG = d;
 scale = s;
@@ -37,9 +36,6 @@ if FORCE
     v = qd(2,1);
     w = qd(3,1);
 
-    %scales force from Nm to Nmm
-    scale = scale/1000;
-
 else
     %velocity of end effector
     pd = fwddiffkin3001(q, qd, d);
@@ -51,10 +47,10 @@ end
 
 if DEBUG
     disp(sprintf('x = %f, y = %f, z = %f, u = %f, v = %f, w = %f, scale = %f', x, y, z, u, v, w, scale));
-
+end
 
 % create a new figure, enable axes and grid
-T = gcf;
+T = figure(1);
 
 %plot settings
     axis on, grid on, shading interp
@@ -79,6 +75,5 @@ T = gcf;
 
 %graphs the velocity vectors
 quiver3(x, y, z, u, v, w, scale);
-
 
 end
