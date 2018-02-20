@@ -30,6 +30,7 @@ lab = 4;                  %sets the lab number
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                                                             
 delete armDataValues.csv;
+delete armDataValuesCopy.csv;
 delete JointAngles.csv;
 delete JointVelocities.csv;
 delete X-Y-Z-Position.csv;
@@ -82,7 +83,7 @@ p = [355, 250;
 %}
       
 % Cubic Polynomial interpolation between all setpoints
-P = cubicPoly(p, 100, 0.1, DEBUG);
+P = cubicPoly(p, 25, 1, DEBUG);
 
 % quintic Polynomial interpolation between all setpoints
 %P = quinticPoly(p, 10, 3, DEBUG);
@@ -101,6 +102,7 @@ viaPts = pointResolution(P, 1, degreesPerTics, DEBUG);
 %data elements (15)
 m = zeros(size(viaPts,2),15);
 m(:,:) = 0;
+copym = m;
 time = zeros(1, size(viaPts,2));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -142,6 +144,16 @@ for k = 1:size(viaPts,2)
         %adds the returned data to the temporary matrix as a row instead of a
         %column (list)
         m(k,:) = returnPacket;
+        copym(k,:) = returnPacket;
+
+        %sets number of past data points to use in running average
+        n = 3;
+        %smoothes the load cell data incrimentally
+        if k > n
+            for i = 3*(1:3)
+                m(k-n:k,i) = dataSmooth(m(k-n:k,i), n, lab, false, DEBUG);
+            end
+        end
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -180,7 +192,7 @@ if DATALOG
 
     %writes the temporary data matrix data to a .csv file
     csvwrite('armDataValues.csv',m);
-    
+    csvwrite('armDataValuesCopy.csv',copym);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%   save and plot joint angles   %%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

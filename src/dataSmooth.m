@@ -1,4 +1,4 @@
-function R = dataSmooth (m, n, l, p, DEBUG)
+function R = dataSmooth (m, n, l, p, d)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -18,7 +18,6 @@ m = [0.47741; 0.47424; 0.48327; 0.47985; 0.48132; 0.48303; 0.48523;
      0.48400; 0.48034; 0.48376; 0.48474; 0.48181; 0.48474; 0.48230;
      0.47985; 0.49060; 0.48864]
 
-
 %number of past data points to average with a data point
 n = 3;
  
@@ -30,7 +29,7 @@ p = true;
 
 %debug
 d = false;
- %}
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 lab = l;
@@ -53,17 +52,17 @@ for i = n:size(m,1)
     for j = i-n+1:i
         sum = sum + m(j,1);
         if DEBUG
-            sum
+            disp(sprintf('sum = %f', sum));
         end
     end
     
     %calculates the average for a particular entry using previous entries
     %to smooth
-    m(i,1) =  sum/n;    
+    m(i,1) =  sum/n;
 end
 
 if DEBUG
-  m
+    disp(sprintf('smooth m = %f', m));
 end
 
 if PLOT
