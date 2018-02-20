@@ -128,8 +128,8 @@ end
 
 %creates a full trajectory with the same set-point for a single joint with
 %data points for PID tuningjum
-holdSize = 10;
-joint = 3;
+holdSize = 20;
+joint = 2;
 setPts = [0, 300, 0, 600, 0, 900, 0]; %must be positive if joint 2 because 
                         %the elbow joint doesnt tollerate negative values
 viaPts = zeros(3,size(setPts*holdSize,2));
