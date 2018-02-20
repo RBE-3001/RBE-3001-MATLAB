@@ -50,7 +50,7 @@ if DEBUG
 end
 
 % create a new figure, enable axes and grid
-T = figure(1);
+T = gcf;
 
 %plot settings
     axis on, grid on, shading interp
