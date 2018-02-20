@@ -39,6 +39,7 @@ delete TCP.csv;
 delete detJp.csv;
 delete X-Y-Z-Velocity.csv;
 delete JointTorque.csv;
+delete X-Y-Z-Force.csv;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -98,7 +99,7 @@ p = [355, 250;
 
 % Can increase the number of identical points for greater data resolution when points are far apart.
 % Converts x-y-z points (mm) to encoder values
-viaPts = pointResolution(P, 100, degreesPerTics, DEBUG);
+viaPts = pointResolution(P, 50, degreesPerTics, DEBUG);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -176,13 +177,25 @@ for k = 1:size(viaPts,2)
     %and a thin red line for path
     if PLOT
         %plots links andjoints
-        f1 = stickModel([m(k,1), m(k,4), m(k,7)]*degreesPerTics, degreesPerTics, lab);
+       % f1 = stickModel([m(k,1), m(k,4), m(k,7)]*degreesPerTics, degreesPerTics, lab);
         %plots path
         if k > 1
-            traceModel([m(k-1,1), m(k-1,4), m(k-1,7),m(k,1), m(k,4), m(k,7)]*degreesPerTics, lab);
+         %   traceModel([m(k-1,1), m(k-1,4), m(k-1,7),m(k,1), m(k,4), m(k,7)]*degreesPerTics, lab);
         end
-       
-        quiverModel([m(k,1); m(k,4); m(k,7)]*degreesPerTics, [m(k,2); m(k,5); m(k,8)]*degreesPerTics, 0.025, DEBUG);
+        
+        %instantaneous joint angles
+        instJointAngles = [m(k,1); m(k,4); m(k,7)]*degreesPerTics;
+        
+        %instantaneous torques
+        instJointTorque(1,1) = ADCToTorque(m(k,3),1,DEBUG).';
+        instJointTorque(2,1) = ADCToTorque(m(k,6),2,DEBUG).';
+        instJointTorque(3,1) = ADCToTorque(m(k,9),3,DEBUG).';
+        instJointTorques = statics3001(instJointAngles, instJointTorque, DEBUG);
+        
+        %draws vector of force on end effector
+        quiverModel(instJointAngles, instJointTorques, norm(instJointTorques), true, true);
+        %draws vector of velocity of end effector
+        %quiverModel([m(k,1); m(k,4); m(k,7)]*degreesPerTics, [m(k,2); m(k,5); m(k,8)]*degreesPerTics, 0.025, false, DEBUG);
         
     end
     
@@ -371,23 +384,58 @@ if DATALOG
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     %writes a .csv file for just the arm's joint angles
-    joint1Torque = ADCToTorque(m(:,3),1,true).';
-    joint2Torque = ADCToTorque(m(:,6),2,true).';
-    joint3Torque = ADCToTorque(m(:,9),3,true).';
+    joint1Torques = ADCToTorque(m(:,3),1,true).';
+    joint2Torques = ADCToTorque(m(:,6),2,true).';
+    joint3Torques = ADCToTorque(m(:,9),3,true).';
     dlmwrite('JointTorque.csv', time, '-append');
-    dlmwrite('JointTorque.csv', joint1Torque, '-append');
-    dlmwrite('JointTorque.csv', joint2Torque, '-append');
-    dlmwrite('JointTorque.csv', joint3Torque, '-append');
+    dlmwrite('JointTorque.csv', joint1Torques, '-append');
+    dlmwrite('JointTorque.csv', joint2Torques, '-append');
+    dlmwrite('JointTorque.csv', joint3Torques, '-append');
     
     if PLOT
         %plots the arm's joint angles over time
         figure('Position', [0, 50, 864, 864]);
-        plot(time, joint1Torque, 'r-*', time, joint2Torque, 'b--x', time, joint3Torque, 'g-.O', 'LineWidth', 2);
+        plot(time, joint1Torques, 'r-*', time, joint2Torques, 'b--x', time, joint3Torques, 'g-.O', 'LineWidth', 2);
         title(sprintf('RBE 3001 Lab %d: Joint Torque vs. Time', lab));
         xlabel('Time (s)');
         ylabel('Joint Torque (Nm)');
         legend('Base Joint', 'Elbow Joint', 'Wrist Joint');
         grid on;       
+    end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   save and plot TCP x-y-z  Forces   %%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    %writes a .csv file for the X-Y-Z forces of the TCP using position and
+    %joint torques
+    Force = zeros(size(m,1),3);
+    for k = 1:size(m,1)-1
+        Force(k,1:3) = statics3001([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], [joint1Torques(1,k); joint2Torques(1,k); joint3Torques(1,k)], DEBUG).';
+    end
+    
+    xForce = Force(1:size(Force,1)-1,1).';
+    yForce = Force(1:size(Force,1)-1,2).';
+    zForce = Force(1:size(Force,1)-1,3).';
+    dlmwrite('X-Y-Z-Force.csv', timeV, '-append');
+    dlmwrite('X-Y-Z-Force.csv', xForce, '-append');
+    dlmwrite('X-Y-Z-Force.csv', yForce, '-append');
+    dlmwrite('X-Y-Z-Force.csv', zForce, '-append');
+    
+    if PLOT
+        %plots the X-Y-Z Force of the TCP over time
+        figure('Position', [864, 50, 864, 864]);
+        plot(timeV, xForce, 'r-*', timeV, yForce, 'b--x', timeV, zForce, 'g-.O', 'LineWidth', 2);
+        title(sprintf('RBE 3001 Lab %d: X-Y-Z Force of the TCP  vs. Time', lab));
+        xlabel('Time (s)');
+        ylabel('Force of the TCP (Nm)');
+        legend('X Force', 'Y Force', 'Z Force');
+        grid on;
+    end
+    
+    if DEBUG  
+        disp('Force: X, Y, Z');
+        disp(Force);
     end
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
