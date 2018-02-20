@@ -29,7 +29,7 @@ degreesPerTics = 360/4096;    %calibrates the degrees per encoder tic
 lab = 4;                  %sets the lab number                                                          
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                                                             
-delete armEncoderValues.csv;
+delete armDataValues.csv;
 delete JointAngles.csv;
 delete JointVelocities.csv;
 delete X-Y-Z-Position.csv;
@@ -82,7 +82,7 @@ p = [355, 250;
 %}
       
 % Cubic Polynomial interpolation between all setpoints
-P = cubicPoly(p, 10, 3, DEBUG);
+P = cubicPoly(p, 100, 0.1, DEBUG);
 
 % quintic Polynomial interpolation between all setpoints
 %P = quinticPoly(p, 10, 3, DEBUG);
@@ -178,8 +178,8 @@ end
 
 if DATALOG
 
-    %writes the temporary encoder matrix data to a .csv file
-    csvwrite('armEncoderValues.csv',m);
+    %writes the temporary data matrix data to a .csv file
+    csvwrite('armDataValues.csv',m);
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%   save and plot joint angles   %%%%%%%%%%%%%%%%%%%%%%
