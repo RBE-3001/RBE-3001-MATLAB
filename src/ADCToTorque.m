@@ -3,9 +3,11 @@ function T = ADCToTorque(v, a, d)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%{
 %ADC value to be converted to torque
-v = [0.05];
+v = [0.05;
+     0.02;
+     0.04];
 
 %specifies which joint 
 a = 1;
@@ -22,22 +24,28 @@ DEBUG = d;
 switch (a)
     case 1
         k = 178.5;
-        y = 0;
-        
+        y = -0.4967*k;
+                     
     case 2
         k = 178.5;
-        y = 10;
-        
+        y = -0.5215*k;
+                            
     case 3
         k = 178.5;
-        y = 100;
+        y = -0.9928*k;
+       
 end
 
-%converts the raw ADC value to applied torque (Nm)
-T = k*v + y;
+%initializes size of output matrix
+T = zeros(size(v,1),1);
 
-if DEBUG
-    disp(sprintf('T = %f, k = %f, v = %f, y = %f', T, k, v, y));
+%converts each raw ADC value to applied torque (Nm)
+for i = 1:size(v,1)
+    T(i,1) = k*v(i,1) + y;
+
+    if DEBUG
+        disp(sprintf('T = %f, k = %f, v = %f, y = %f', T(i,1), k, v(i,1), y));
+    end
 end
 
 end

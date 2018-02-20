@@ -38,6 +38,7 @@ delete JointAcceletations.csv;
 delete TCP.csv;
 delete detJp.csv;
 delete X-Y-Z-Velocity.csv;
+delete JointTorque.csv;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -72,9 +73,13 @@ end
 %a trajectory with variable data resolution
 %X-Y-Z set-points:
 
-p = [ 233.85,   269.38,    247, 275.74, 230.93;  % X-axis poistion values
-     -110.82,  -109.65,  9.572, 120.34, 117.58;  % Y-axis poistion values
-      377.33,  -2.7074, 386.96, 6.1789, 372.87];  % Z-axis poistion values
+%p = [ 233.85,   269.38,    247, 275.74, 230.93;  % X-axis poistion values
+%     -110.82,  -109.65,  9.572, 120.34, 117.58;  % Y-axis poistion values
+%      377.33,  -2.7074, 386.96, 6.1789, 372.87];  % Z-axis poistion values
+
+P = [355;
+       0;
+     135];
 
 %{
 p = [355, 250;
@@ -83,7 +88,7 @@ p = [355, 250;
 %}
       
 % Cubic Polynomial interpolation between all setpoints
-P = cubicPoly(p, 25, 1, DEBUG);
+%P = cubicPoly(p, 1, 1, DEBUG);
 
 % quintic Polynomial interpolation between all setpoints
 %P = quinticPoly(p, 10, 3, DEBUG);
@@ -93,7 +98,7 @@ P = cubicPoly(p, 25, 1, DEBUG);
 
 % Can increase the number of identical points for greater data resolution when points are far apart.
 % Converts x-y-z points (mm) to encoder values
-viaPts = pointResolution(P, 1, degreesPerTics, DEBUG);
+viaPts = pointResolution(P, 100, degreesPerTics, DEBUG);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -361,6 +366,29 @@ if DATALOG
         disp('Velocity: X, Y, Z');
         disp(Velocity);
     end  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%   save and plot joint toques   %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    %writes a .csv file for just the arm's joint angles
+    joint1Torque = ADCToTorque(m(:,3),1,true).';
+    joint2Torque = ADCToTorque(m(:,6),2,true).';
+    joint3Torque = ADCToTorque(m(:,9),3,true).';
+    dlmwrite('JointTorque.csv', time, '-append');
+    dlmwrite('JointTorque.csv', joint1Torque, '-append');
+    dlmwrite('JointTorque.csv', joint2Torque, '-append');
+    dlmwrite('JointTorque.csv', joint3Torque, '-append');
+    
+    if PLOT
+        %plots the arm's joint angles over time
+        figure('Position', [0, 50, 864, 864]);
+        plot(time, joint1Torque, 'r-*', time, joint2Torque, 'b--x', time, joint3Torque, 'g-.O', 'LineWidth', 2);
+        title(sprintf('RBE 3001 Lab %d: Joint Torque vs. Time', lab));
+        xlabel('Time (s)');
+        ylabel('Joint Torque (Nm)');
+        legend('Base Joint', 'Elbow Joint', 'Wrist Joint');
+        grid on;       
+    end
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
