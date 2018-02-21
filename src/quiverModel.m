@@ -7,10 +7,14 @@ function T = quiverModel(q, qd, s, e, f, d)
 %input = [theta1;   theta2;  theta3]
      q = [     30;       45;       -73];
 %input = [dtheta1; dtheta2; dtheta3]
-    qd = [      1;      3;       9.8];
+    qd = [      9;     63;       8];
 
 %scale
 s = norm(qd);
+
+%sets axis parameters for live plot
+e = [-400, 400, -400, 400, -150, 650]; 
+
 
 %Force = true, Velocity = false
 f = true;
@@ -33,9 +37,9 @@ z = tcp(3,1);
 
 if FORCE
     %force vector of end effector
-    u = qd(1,1);
+    u = qd(3,1);
     v = qd(2,1);
-    w = qd(3,1);
+    w = qd(1,1);
 
 else
     %velocity of end effector

@@ -26,6 +26,6 @@ J = jacob0(q,d);
 Jp = J(1:3,:);
 
 %calculates force vector observed observed at tip
-Ftip = inv(Jp)*tq;
+Ftip = pinv(Jp.')*tq;
 
 end

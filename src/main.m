@@ -83,7 +83,7 @@ end
 %      377.33,  -2.7074, 386.96, 6.1789, 372.87];  % Z-axis poistion values
 
 P = [355;
-       0;
+      0;
      135];
 
 %{
@@ -197,7 +197,7 @@ for k = 1:size(viaPts,2)
         instJointTorques = statics3001(instJointAngles, instJointTorque, DEBUG);
         
         %draws vector of force on end effector
-        quiverModel(instJointAngles, instJointTorques, norm(instJointTorques), axe, true, true);
+        quiverModel(instJointAngles, instJointTorques, norm(instJointTorques)*100, axe, true, true);
         %draws vector of velocity of end effector
         %quiverModel([m(k,1); m(k,4); m(k,7)]*degreesPerTics, [m(k,2); m(k,5); m(k,8)]*degreesPerTics, 0.025, false, DEBUG);
         
