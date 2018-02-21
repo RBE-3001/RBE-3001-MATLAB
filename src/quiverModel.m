@@ -1,4 +1,4 @@
-function T = quiverModel(q, qd, s, f, d)
+function T = quiverModel(q, qd, s, e, f, d)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -23,6 +23,7 @@ d = true;
 DEBUG = d;
 scale = s;
 FORCE = f;
+axe   = e;
 
 %position of end effector
 tcp = fwkin3001(q, true, d);
@@ -60,12 +61,12 @@ T = gcf;
     % pbaspect([1 1 1]);
     % daspect([1 1 1]);
      
-     lim = [-350, 350];
-     xlim(lim);
-     ylim(lim);
-     zlim([-100, 600]);
+     %lim = [-350, 350];
+     %xlim(lim);
+     %ylim(lim);
+     %zlim([-100, 600]);
      
-     axis([-350, 350, -350, 350, -100, 600]);
+     axis(axe);
      
     % center the figure on screen and resize it
          fig_pos = [0, 0, 900, 900];

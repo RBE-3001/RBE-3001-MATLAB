@@ -26,20 +26,24 @@ DEBUG   = false;          % enables/disables debug prints
 PLOT    = true;          % enables/diables plotting
 DATALOG = true;          % enables/disables data logging
 degreesPerTics = 360/4096;    %calibrates the degrees per encoder tic
-lab = 4;                  %sets the lab number                                                          
+lab = 4;                  %sets the lab number
+axe = [-400, 400, -400, 400, -150, 650]; %sets axis parameters for live plot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                                                            
+
+%original unchanged data from all nine channels
+delete armDataValuesCopy.csv;                 
+%has smoothed load cell values
 delete armDataValues.csv;
-delete armDataValuesCopy.csv;
+
+delete X-Y-Z-Position.csv;
+delete X-Y-Z-Velocity.csv;
+delete X-Y-Z-Force.csv;
+delete TCP.csv;
 delete JointAngles.csv;
 delete JointVelocities.csv;
-delete X-Y-Z-Position.csv;
 delete JointAcceletations.csv;
-delete TCP.csv;
 delete detJp.csv;
-delete X-Y-Z-Velocity.csv;
 delete JointTorque.csv;
-delete X-Y-Z-Force.csv;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -99,7 +103,7 @@ p = [355, 250;
 
 % Can increase the number of identical points for greater data resolution when points are far apart.
 % Converts x-y-z points (mm) to encoder values
-viaPts = pointResolution(P, 50, degreesPerTics, DEBUG);
+viaPts = pointResolution(P, 100, degreesPerTics, DEBUG);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -177,10 +181,10 @@ for k = 1:size(viaPts,2)
     %and a thin red line for path
     if PLOT
         %plots links andjoints
-       % f1 = stickModel([m(k,1), m(k,4), m(k,7)]*degreesPerTics, degreesPerTics, lab);
+        f1 = stickModel([m(k,1), m(k,4), m(k,7)]*degreesPerTics, degreesPerTics, lab, axe);
         %plots path
         if k > 1
-         %   traceModel([m(k-1,1), m(k-1,4), m(k-1,7),m(k,1), m(k,4), m(k,7)]*degreesPerTics, lab);
+            traceModel([m(k-1,1), m(k-1,4), m(k-1,7),m(k,1), m(k,4), m(k,7)]*degreesPerTics, lab, axe);
         end
         
         %instantaneous joint angles
@@ -193,7 +197,7 @@ for k = 1:size(viaPts,2)
         instJointTorques = statics3001(instJointAngles, instJointTorque, DEBUG);
         
         %draws vector of force on end effector
-        quiverModel(instJointAngles, instJointTorques, norm(instJointTorques), true, true);
+        quiverModel(instJointAngles, instJointTorques, norm(instJointTorques), axe, true, true);
         %draws vector of velocity of end effector
         %quiverModel([m(k,1); m(k,4); m(k,7)]*degreesPerTics, [m(k,2); m(k,5); m(k,8)]*degreesPerTics, 0.025, false, DEBUG);
         
@@ -224,7 +228,7 @@ if DATALOG
     dlmwrite('JointAngles.csv', joint2Angles, '-append');
     dlmwrite('JointAngles.csv', joint3Angles, '-append');
     
-    if PLOT
+    if false
         %plots the arm's joint angles over time
         figure('Position', [0, 50, 864, 864]);
         plot(time, joint1Angles, 'r-*', time, joint2Angles, 'b--x', time, joint3Angles, 'g-.O', 'LineWidth', 2);
@@ -249,7 +253,7 @@ if DATALOG
     dlmwrite('JointVelocities.csv', joint2Velocities, '-append');
     dlmwrite('JointVelocities.csv', joint3Velocities, '-append');
 
-    if PLOT
+    if false
         %plots the arm's joint velocities over time
         figure('Position', [864, 50, 864, 864]);
         plot(timeV, joint1Velocities, 'r-*', timeV, joint2Velocities, 'b--x', timeV, joint3Velocities, 'g-.O', 'LineWidth', 2);
@@ -274,7 +278,7 @@ if DATALOG
     dlmwrite('JointAcclerations.csv', joint2Accelerations, '-append');
     dlmwrite('JointAcclerations.csv', joint3Accelerations, '-append');
 
-    if PLOT
+    if false
         %plots the arm's joint acceleration over time
         figure('Position', [864, 50, 864, 864]);
         plot(timeA, joint1Accelerations, 'r-*', timeA, joint2Accelerations, 'b--x', timeA, joint3Accelerations, 'g-.O', 'LineWidth', 2);
@@ -303,7 +307,7 @@ if DATALOG
     dlmwrite('X-Y-Z-Position.csv', yPosition, '-append');
     dlmwrite('X-Y-Z-Position.csv', zPosition, '-append');
     
-    if PLOT
+    if false
         %plots the X-Y-Z Position of the TCP over time
         figure('Position', [864, 50, 864, 864]);
         plot(time, xPosition, 'r-*', time, yPosition, 'b--x', time, zPosition, 'g-.O', 'LineWidth', 2);
@@ -364,7 +368,7 @@ if DATALOG
     dlmwrite('X-Y-Z-Velocity.csv', yVelocity, '-append');
     dlmwrite('X-Y-Z-Velocity.csv', zVelocity, '-append');
     
-    if PLOT
+    if false
         %plots the X-Y-Z Velocity of the TCP over time
         figure('Position', [864, 50, 864, 864]);
         plot(timeV, xVelocity, 'r-*', timeV, yVelocity, 'b--x', timeV, zVelocity, 'g-.O', 'LineWidth', 2);
@@ -428,7 +432,7 @@ if DATALOG
         plot(timeV, xForce, 'r-*', timeV, yForce, 'b--x', timeV, zForce, 'g-.O', 'LineWidth', 2);
         title(sprintf('RBE 3001 Lab %d: X-Y-Z Force of the TCP  vs. Time', lab));
         xlabel('Time (s)');
-        ylabel('Force of the TCP (Nm)');
+        ylabel('Force of the TCP (N)');
         legend('X Force', 'Y Force', 'Z Force');
         grid on;
     end

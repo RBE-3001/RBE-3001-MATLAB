@@ -1,4 +1,4 @@
-function T = traceModel(q,l)
+function T = traceModel(q, l, e)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -10,7 +10,11 @@ function T = traceModel(q,l)
        %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-lab = l;                 %sets the lab number
+%sets the lab number
+lab = l; 
+
+%sets axis parameters
+axe = e;
 
 %transform matrices
     %  = tdh( theta,      d,    alpha,      a)
@@ -33,12 +37,12 @@ lab = l;                 %sets the lab number
     % pbaspect([1 1 1]);
     % daspect([1 1 1]);
      
-     lim = [-350, 350];
-     xlim(lim);
-     ylim(lim);
-     zlim([-100, 600]);
+     %lim = [-350, 350];
+     %xlim(lim);
+     %ylim(lim);
+     %zlim([-100, 600]);
      
-     axis([-350, 350, -350, 350, -100, 600]);
+     axis(axe);
      
     % center the figure on screen and resize it
          fig_pos = [0, 0, 900, 900];
