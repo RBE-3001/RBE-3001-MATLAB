@@ -3,7 +3,7 @@ function averageHue = aquireColor(img, c, p, d)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
+%{
 close all; clear all; clc;
 %connects to webcam
 cam = webcam();
@@ -24,7 +24,7 @@ p = true;
 
 %debug
 d = true;
-%
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %plot
@@ -33,7 +33,7 @@ PLOT = p;
 %debug
 DEBUG = d;
 
-if DEBUG
+if DEBUG & PLOT
     figure;
     imshow(img);
 end

@@ -1,9 +1,9 @@
-function c = aquireCentroid(img, p, d)
+function centM = aquireCentroid(img, w, p, d)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
+%{
 close all; clear all; clc;
 %connects to webcam
 cam = webcam();
@@ -14,13 +14,19 @@ pause(1)
 %grabs a frame of the webcame
 img = snapshot(cam);
 
+%marker plot
+w = true;
+
 %plot
-p = true;
+p = false;
 
 %debug
 d= true;
-%
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%plot base image with markers
+PLOT_M = w;
 
 %plot
 PLOT = p;
@@ -33,17 +39,20 @@ centM = zeros(3,2);
 %initializes circle counter
 i = 1;
 
-if DEBUG && PLOT
+if PLOT_M
+    %shows original image
     figure;
     imshow(img);
+    hold on
 end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %blur image
 h = ones(5,5) / 25;
 img2 = imfilter(img, h);
 
-if DEBUG && PLOT
+if DEBUG & PLOT
     figure;
     imshow(img2);
 end
@@ -54,7 +63,7 @@ end
 img3 = createMask1(img2);
 img3 = imcomplement(img3);
 
-if DEBUG && PLOT
+if DEBUG & PLOT
     figure;
     imshow(img3);
 end
@@ -66,7 +75,7 @@ LB = 750;
 UB = 2200;
 img4 = xor(bwareaopen(img3, LB), bwareaopen(img3, UB));
 
-if DEBUG && PLOT
+if DEBUG & PLOT
     figure;
     imshow(img4);
 end
@@ -78,7 +87,6 @@ end
 % Display the label matrix and draw each boundary
 if PLOT
     imshow(label2rgb(L, @jet, [.5 .5 .5]));
-    hold on
 end
 
 %finds the boundaries
@@ -129,8 +137,8 @@ for k = 1:length(B)
         disp(sprintf('Number of Circles: %d', i-1));
     end
     
-    %plots centroid locations of circles
-    if PLOT
+    if PLOT_M
+        %plots centroid locations of circles
         plot(centroid(1),centroid(2),'ko');
     end
     
