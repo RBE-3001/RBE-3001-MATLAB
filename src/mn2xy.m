@@ -20,7 +20,7 @@ for i = 1:5
 end
 
 %% organizing data by row.  2nd col *should* be consistent
-arm_pixels = pixels(1:2,:)
+arm_pixels = pixels(1:2,:);
 hole_pixel = pixels(3,:);
 cam_pixels = pixels(4:5,:);
 

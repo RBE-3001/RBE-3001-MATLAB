@@ -25,7 +25,7 @@ DEBUG  = d;
 image = aquireImage;
 
 %finds the centroids of the round objects in the image
-iCentroids = aquireCentroid(image, PLOT_M, PLOT, false);
+iCentroids = aquireCentroid(image, PLOT_M, PLOT, DEBUG);
 
 %converts centroid image coordinates to robot base-frame coordiates
 centroids = zeros(size(iCentroids,1),2);
@@ -34,9 +34,9 @@ for i = 1:size(iCentroids,1)
 end
 
 %aquires the colors of the objects
-hue = aquireColor(image, iCentroids, PLOT, true);
+hue = aquireColor(image, iCentroids, 5, PLOT, true);
 
-if DEBUG
+if true
     hue
 end
 

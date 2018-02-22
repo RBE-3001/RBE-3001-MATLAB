@@ -1,4 +1,4 @@
-function averageHue = aquireColor(img, c, p, d)
+function averageHue = aquireColor(img, c, r, p, d)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -27,6 +27,9 @@ d = true;
 %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%sets radius of hue averaging
+radius = r;
+
 %plot
 PLOT = p;
 
@@ -51,9 +54,6 @@ averageHue = zeros(size(c,1),1);
 
 %converts image from RGB format to HSV
 imgHSV = rgb2hsv(img);
-
-%sets radius of hue averaging
-radius = 75;
     
 %loops through all of the centroid coordinates to grab the pixel HSV values
 for i = 1:size(c,1)
