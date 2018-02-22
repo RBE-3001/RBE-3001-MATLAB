@@ -1,9 +1,9 @@
-function averageHue = aquireColor(img, c, r, p, d)
+function averageRGB = aquireColor(img, c, r, p, d)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%{
+%
 close all; clear all; clc;
 %connects to webcam
 cam = webcam();
@@ -15,16 +15,19 @@ pause(1)
 img = snapshot(cam);
 
 %test centroid
- c = [253, 376;  % yellow
-      311, 273;  % green
-      404, 368]; % blue
+ c = [301, 384;  % green
+      307, 307;  % yellow
+      380, 342]; % blue
 
+%radius
+r = 3;
+  
 %plot
 p = true;
 
 %debug
 d = true;
-%}
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %sets radius of hue averaging
@@ -50,19 +53,19 @@ end
 
 %pre-alocates the hue matrix, where each row is the average hue around a
 %centroid
-averageHue = zeros(size(c,1),1);
+averageRGB = zeros(size(c,1),3);
 
 %converts image from RGB format to HSV
-imgHSV = rgb2hsv(img);
+%imgHSV = rgb2hsv(img);
     
 %loops through all of the centroid coordinates to grab the pixel HSV values
 for i = 1:size(c,1)
     cX = c(i,1);
     cY = c(i,2);
     
-    %resets terms for calculating average hue repeatedly
+    %resets terms for calculating average color repeatedly
     count = 0;
-    sumH = 0;
+    sumRGB = zeros(1,3);
     
     %adds up the hue from each pixel in the y-axis
     for m = 0:radius*2
@@ -71,12 +74,14 @@ for i = 1:size(c,1)
         for n = 0:radius*2
             x = cX - radius + m;
             y = cY - radius + n;
-            hsv = squeeze(imgHSV(x,y,:)).';
-            sumH = sumH + hsv(1,1);
+            RGB = squeeze(img(x,y,:)).';
+            sumRGB(1,1) = sumRGB(1,1)*dk + RGB(1,1)*dk;
+            sumRGB(1,2) = sumRGB(1,2)*dk + RGB(1,2)*dk;
+            sumRGB(1,3) = sumRGB(1,3)*dk + RGB(1,3)*dk;
             count = count +1;
             
             if DEBUG
-                disp(sprintf('x = %f, y = %f, hue = %f, sumH = %f, count = %f', x, y, hsv(1,1), sumH, count));
+                disp(sprintf('x=%f, y=%f, RGB: R=%f G=%f B=%f, sumH: R=%f G=%f B=%f, count=%f', x, y, RGB(1,1), RGB(1,2), RGB(1,3), sumRGB(1,1), sumRGB(1,2), sumRGB(1,3), count));
             end
         end
                 
@@ -84,11 +89,11 @@ for i = 1:size(c,1)
             
     if DEBUG
         disp(sprintf('Cx = %f, Cy = %f', cX,cY));
-        averageHue
+        averageRGB
     end
     
-    %averages the hue for each dot
-    averageHue(i,1) = sumH/count;
+    %averages the RGB for each dot
+    averageRGB(i,:) = sumRGB/count;
 
 end
 
