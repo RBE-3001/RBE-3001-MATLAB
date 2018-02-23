@@ -40,7 +40,7 @@ sf_arm = (tot_width_in_cm/arm_width_in_pix);
 percentage = (n-cam_height_in_pix)/(tot_height_in_pix);
 sf_cur = percentage * (sf_arm - sf_cam) + sf_cam;
 y = sf_cur * (m - hole_pixel(1));
-outarr = [x,y];
+outarr = [-y+180,-x];
 end
 
 % burrows into xml object and rips out numbers
