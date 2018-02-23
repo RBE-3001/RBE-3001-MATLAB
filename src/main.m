@@ -44,6 +44,7 @@ delete JointVelocities.csv;
 delete JointAcceletations.csv;
 delete detJp.csv;
 delete JointTorque.csv;
+delete averageLoadCell.csv;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -78,13 +79,13 @@ end
 %a trajectory with variable data resolution
 %X-Y-Z set-points:
 
-%p = [ 233.85,   269.38,    247, 275.74, 230.93;  % X-axis poistion values
-%     -110.82,  -109.65,  9.572, 120.34, 117.58;  % Y-axis poistion values
-%      377.33,  -2.7074, 386.96, 6.1789, 372.87];  % Z-axis poistion values
+p = [ 233.85,   269.38,    247, 275.74, 230.93;  % X-axis poistion values
+     -110.82,  -109.65,  9.572, 120.34, 117.58;  % Y-axis poistion values
+      377.33,  -2.7074, 386.96, 6.1789, 372.87];  % Z-axis poistion values
 
-P = [355;
-      0;
-     135];
+%P = [255;
+%      50;
+%     135];
 
 %{
 p = [355, 250;
@@ -93,7 +94,7 @@ p = [355, 250;
 %}
       
 % Cubic Polynomial interpolation between all setpoints
-%P = cubicPoly(p, 1, 1, DEBUG);
+P = cubicPoly(p, 25, 1, DEBUG);
 
 % quintic Polynomial interpolation between all setpoints
 %P = quinticPoly(p, 10, 3, DEBUG);
@@ -103,7 +104,7 @@ p = [355, 250;
 
 % Can increase the number of identical points for greater data resolution when points are far apart.
 % Converts x-y-z points (mm) to encoder values
-viaPts = pointResolution(P, 100, degreesPerTics, DEBUG);
+viaPts = pointResolution(P, 1, degreesPerTics, DEBUG);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -215,6 +216,7 @@ if DATALOG
     %writes the temporary data matrix data to a .csv file
     csvwrite('armDataValues.csv',m);
     csvwrite('armDataValuesCopy.csv',copym);
+        
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%   save and plot joint angles   %%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -442,6 +444,37 @@ if DATALOG
         disp(Force);
     end
     
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%   save and averages load cell readings   %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%initializes average matrix
+averageLoadCell = zeros(1,3);
+
+%grabs load cell values and averages them
+for i = 1:3
+    count = 0;
+    sum = 0;
+    
+    for j = 1:size(copym,1)
+        %adds up all load cell readings
+        sum = sum + copym(j,i*3);
+        %incriments counter
+        count = count + 1;
+    end
+    
+    %writes average to matrix
+    averageLoadCell(1,i) = sum/count;
+    
+end
+
+%writes average values to a .csv file
+dlmwrite('averageLoadCell.csv', averageLoadCell, '-append');
+
+if DEBUG
+    disp(sprintf('Load cell #1 = %f, #2 = %f, #3 = %f', averageLoadCell(1,1), averageLoadCell(1,2), averageLoadCell(1,3)));
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 end
