@@ -32,7 +32,7 @@ iCentroids
 %converts centroid image coordinates to robot base-frame coordiates
 centroids = zeros(size(iCentroids,1),2);
 for i = 1:size(iCentroids,1)
-    centroids(i,:) = mn2xy(iCentroids(i,1),iCentroids(i,2));
+    centroids(i,:) = mn2xy(iCentroids(i,1), iCentroids(i,2), true);
 end
 
 %aquires the colors of the objects

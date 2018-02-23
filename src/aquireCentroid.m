@@ -72,7 +72,7 @@ end
 
 %remove tiny bits
 LB = 750;
-UB = 2200;
+UB = 2300;
 img4 = xor(bwareaopen(img3, LB), bwareaopen(img3, UB));
 
 if DEBUG & PLOT
