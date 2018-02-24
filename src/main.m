@@ -23,7 +23,7 @@ import java.lang.*;
 pp = PacketProcessor(7); % deviceID == 7
 
 DEBUG   = false;          % enables/disables debug prints
-PLOT    = true;          % enables/diables plotting
+PLOT    = false;          % enables/diables plotting
 DATALOG = true;          % enables/disables data logging
 degreesPerTics = 360/4096;    %calibrates the degrees per encoder tic
 lab = 4;                  %sets the lab number                                                          
@@ -41,7 +41,7 @@ delete X-Y-Z-Velocity.csv;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Create a PacketProcessor object to send data to the nucleo firmware
-SERV_ID = 37;            % we will be talking to server ID 37 on
+SERV_ID = 30;            % we will be talking to server ID 37 on
 % the Nucleo
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -127,6 +127,9 @@ for k = 1:size(viaPts,2)
     %joint 3 set-point packet
     packet(7) = viaPts(3,k);
     
+    %Gripper set-point packet, 1 is open, 0 is closed
+    packet(10) = 0;
+    
     
     %Send packet to the server and get the response
     returnPacket = pp.command(SERV_ID, packet);
@@ -146,7 +149,7 @@ for k = 1:size(viaPts,2)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    if DEBUG
+    if true
         disp('Sent Packet:');
         disp(packet);
         disp('Received Packet:');
