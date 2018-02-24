@@ -30,7 +30,7 @@ d = true;
 %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%sets radius of hue averaging
+%sets radius of LAB averaging
 radius = r;
 
 %plot
@@ -51,7 +51,7 @@ end
 %green = img(y, x, 2);
 %blue = img(y, x, 3);
 
-%pre-alocates the hue matrix, where each row is the average hue around a
+%pre-alocates the LAB matrix, where each row is the average LAB around a
 %centroid
 averageLAB = zeros(size(c,1),3);
 
@@ -73,10 +73,17 @@ for i = 1:size(c,1)
     count = 0;
     sumLAB = zeros(1,3);
     
-    %adds up the hue from each pixel in the y-axis
+    if cX == 0 & cY == 0
+        
+        %gives a zero average
+        averageLAB(i,:) = [0 0 0];
+        
+    else
+    
+    %adds up the LAB from each pixel in the y-axis
     for m = 0:radius*2
         
-        %adds up the hue from each pixel in the x-axis
+        %adds up the LAB from each pixel in the x-axis
         for n = 0:radius*2
             x = cX - radius + m;
             y = cY - radius + n;
@@ -100,7 +107,9 @@ for i = 1:size(c,1)
     
     %averages the RGB for each dot
     averageLAB(i,:) = sumLAB/count;
-
+    
+    end
+    
 end
 
 end

@@ -19,9 +19,10 @@ d = true;
 %debug
 DEBUG = d;
 
+%checks to make sure there are colors and that they are real
 if size(LAB,1) == 0
-    color = 0;
-    
+    color = 0; %empty
+ 
 else
     
     %sets up output matrix
@@ -33,7 +34,10 @@ else
         a = LAB(i,2);
         b = LAB(i,3);
         
-        if abs(a) > abs(b)
+        if a == 0 & b ==0
+            color(i,1) = 0; %empty
+        
+        elseif abs(a) > abs(b)
             if a < 0
                 color(i,1)  = 2; %green
             else %a > 0
