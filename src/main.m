@@ -49,7 +49,7 @@ delete averageLoadCell.csv;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Create a PacketProcessor object to send data to the nucleo firmware
-SERV_ID = 37;            % we will be talking to server ID 37 on
+SERV_ID = 30;            % we will be talking to server ID 30, LabServer
 % the Nucleo
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -139,6 +139,9 @@ for k = 1:size(viaPts,2)
     
     %joint 3 set-point packet
     packet(7) = viaPts(3,k);
+    
+    %actuates the gripper: 1 opens gripper and 0 closes gripper
+    packet(10) = 1;
     
     
     %Send packet to the server and get the response
