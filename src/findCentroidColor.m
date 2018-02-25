@@ -34,7 +34,7 @@ iCentroids = aquireCentroid(image, DARK, PLOT_M, PLOT, DEBUG);
 %checks whether there are objects
 if iCentroids(1,:) == [40 4]
     %writes special error code to output if no objects
-    centroids = iCentroids;
+    centroids = [4 0 4];
     disp('No objects left!');
     
 else
