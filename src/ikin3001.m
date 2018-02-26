@@ -28,7 +28,7 @@ try
     L3 = 180;
     L4 = sqrt((pz-L1)^2+(px)^2+(py)^2);
     
-    theta1 = atan2d(py,px);
+    theta1 = -atan2d(py,px);
     theta2 = atan2d( ( pz-L1 ), ( sqrt( (px)^2 + (py)^2 ) ) ) + acosd( ( (L2)^2 + (L4)^2 - (L3)^2 ) / (2*L2*L4));        
     theta3 = -acosd(-((L3)^2+(L2)^2-(L4)^2)/(2*L2*L3));
         

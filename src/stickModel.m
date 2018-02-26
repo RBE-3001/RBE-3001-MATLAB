@@ -1,6 +1,4 @@
-function T = stickModel(q,dpc,l)
-
-
+function T = stickModel(q, dpc, l, e)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -12,10 +10,15 @@ function T = stickModel(q,dpc,l)
     %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    
-    degreesPerTics = dpc;    %calibrates the degrees per encoder tic
-    lab = l;                 %sets the lab number
+%calibrates the degrees per encoder tic    
+degreesPerTics = dpc;
+
+%sets the lab number
+lab = l;                 
    
+%sets axis parameters
+axe = e;
+
 %transform matrices
     %  = tdh( theta,      d,    alpha,      a)
     A1 = tdh(-q(1,1),    135,     -90,      0);
@@ -33,12 +36,12 @@ function T = stickModel(q,dpc,l)
     % pbaspect([1 1 1]);
     % daspect([1 1 1]);
      
-     lim = [-350, 350];
-     xlim(lim);
-     ylim(lim);
-     zlim([-100, 600]);
+     %lim = [-350, 350];
+     %xlim(lim);
+     %ylim(lim);
+     %zlim([-100, 600]);
      
-     axis([-350, 350, -350, 350, -100, 600]);
+     axis(axe);
      
     % center the figure on screen and resize it
          fig_pos = [0, 0, 900, 900];
