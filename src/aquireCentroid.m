@@ -147,10 +147,33 @@ for k = 1:length(B)
   
   % mark objects above the threshold with a black circle
   if metric > threshold
-    centroid = round(stats(k).Centroid);
-    centM(i,:) = [centroid(1), centroid(2)];
-    i = i + 1;
-    numCircles = i - 1;
+      
+      %gets centroid data
+      centroid = round(stats(k).Centroid);
+      
+      %converts centroid data to robot reference frame
+      cent = mn2xy(centroid(1), centroid(2), DEBUG);
+      
+      %gabs x and y of converted centroid
+      centX = cent(1,1);
+      centY = cent(1,2);
+      
+      %sets acceptable centroid bounds      
+      xBoundUpper = 250;
+      xBoundLower = 0;
+      yBoundUpper = 125;
+      yBoundLower = -125;
+      
+      %sets booleans for conditional statement
+      xBound = centX < xBoundUpper & centX > xBoundLower;
+      yBound = centY < yBoundUpper & centY > yBoundLower
+      
+      %checks that centroids are within a certain bound
+      if xBound & yBound
+              centM(i,:) = [centroid(1), centroid(2)];
+              i = i + 1;
+              numCircles = i - 1;
+      end
     
     if DEBUG
         disp(sprintf('threshold = %f, metric = %f, length(B) = %d, Number of Circles: %d', threshold, metric, length(B), numCircles));

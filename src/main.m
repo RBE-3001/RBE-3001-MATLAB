@@ -13,12 +13,12 @@ close all; clc; clear;
 %booleans
 DEBUG             = false;    %enables/disables debug prints
 DEBUG_COMS        = false;    %displays communication debug messages
-PLOT              = false;    %enables/diables plotting
+PLOT              = true;    %enables/diables plotting
 PLOT_I            = false;    %enables/disables image plotting
 PLOT_M            = true;     %plots a marker for centroids on the camera image
 DATALOG           = true;     %enables/disables data logging
 GRAVITY_COMP_TEST = false;    %enables gravity comp test, setting all PID values to 0     
-DARK              = false;    %lighting conditions for camera (dark = true, bright = false)
+DARK              = true;    %lighting conditions for camera (dark = true, bright = false)
 
 %numerical
 degreesPerTics    = 360/4096;               %calibrates the degrees per encoder tic
@@ -137,9 +137,16 @@ while routine ~= 666
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% picks up an object
         case 20
+            %waits for arm to stabilize
+            pause(1);
+            
             %sets up a trajectory between the home position and the object
-            objectLocation = [centroids(1,1); centroids(1,2); 30]
-            desiredPoints = [currentPoint, objectLocation];
+            objectLocation = [centroids(1,1); centroids(1,2); -40]
+            %makes a clearance target
+            objectClearance = objectLocation;
+            %sets clearance
+            objectClearance(1,3) = 0;
+            desiredPoints = [currentPoint, objectClearance, objectLocation];
             
             %updates current robot location
             currentPoint = objectLocation; 
@@ -151,6 +158,9 @@ while routine ~= 666
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% closes gripper
         case 30
+            %waits for arm to stabilize
+            pause(1);
+            
             %open gripper
             gripper = 0;
             
@@ -159,6 +169,7 @@ while routine ~= 666
             
             last = routine;
             routine = 100; %stay stationary
+            res = 5; %data resolution
             next = 1;
             
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -171,7 +182,8 @@ while routine ~= 666
             desiredPoints = currentPoint;
             
             last = routine;
-            routine = 100;%stay stationary
+            routine = 100; %stay stationary
+            res = 5; %data resolution
             next = 0;
             
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -179,7 +191,7 @@ while routine ~= 666
         case 11
             %sets up a trajectory between the objectLocation and the weigh
             %position
-            desiredPoints = [objectLocation, homeForce];
+            desiredPoints = [currentPoint, homeForce];
             
             last = routine;
             routine = 105; %build trajectory, quintic interpolation
@@ -188,12 +200,12 @@ while routine ~= 666
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% stay at home position to get steady values for the weight of the object
         case 12
-            %sets up a trajectory between the objectLocation and the weigh
-            %position
+            %sets up a static trajectory in the weigh position
             desiredPoints = [homeForce];
             
             last = routine;
             routine = 100; %stationary trajectory, no interpolation
+            res = 50; %data resolution
             next = 1;
             
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -213,30 +225,35 @@ while routine ~= 666
                                 
                 last = routine;
                 %selects set-down position based on weight and color
-                if avgZForce > 0.5 %heavy
+                if avgZForce > 350 %heavy
                     switch colorFirst
-                        case 1 %move arm to light yellow drop location
+                        case 1 %move arm to heavy yellow drop location
                             desiredPoints = [homeForce, dropHeavyYellow];
+                            currentPoint = dropHeavyYellow;
 
-                        case 2 %move arm to light green drop location
+                        case 2 %move arm to heavy green drop location
                             desiredPoints = [homeForce, dropHeavyLight];
+                            currentPoint = dropHeavyGreen;
 
-                        case 3 %move arm to light blue drop location
+                        case 3 %move arm to heavy blue drop location
                             desiredPoints = [homeForce, dropHeavyBlue];
-                                                       
+                            currentPoint = dropHeavyBlue;
+                            
                     end
                     
                 else %light
                     switch colorFirst
                         case 1 %move arm to heavy yellow drop location
                             desiredPoints = [homeForce, dropLightYellow];
-                            
+                            currentPoint = dropLightYellow;
+
                         case 2 %move arm to heavy green drop location
                             desiredPoints = [homeForce, dropLightGreen];
+                            currentPoint = dropLightGreen;
 
                         case 3 %move arm to heavy blue drop location
                             desiredPoints = [homeForce, dropLightBlue];
-                   
+                            currentPoint = dropLightBlue;
                     end
                 end
                 
@@ -256,10 +273,7 @@ while routine ~= 666
             
             %duration (s) between intermpolations
             nonLinearInterDuration = 0;
-            
-            %data resolution
-            res = 50;
-            
+                       
             encoderTrajectory = buildTrajectory( desiredPoints, interMode, interPoints, nonLinearInterDuration, res, degreesPerTics, DEBUG);
             
             %do not set last because auxilary routines have no trace

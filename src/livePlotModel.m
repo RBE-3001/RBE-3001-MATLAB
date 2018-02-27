@@ -31,11 +31,11 @@ DEBUG = d;
         
         if FORCE
             %draws vector of force on end effector
-            quiverModel(instJointAngles, instJointTorques, norm(instJointTorques)*forceScale, axe, true, true);
+            quiverModel(instJointAngles, instJointTorques, norm(instJointTorques)*forceScale, axe, FORCE, DEBUG);
         
         else
             %draws vector of velocity of end effector
-            quiverModel([m(k,1); m(k,4); m(k,7)]*degreesPerTics, [m(k,2); m(k,5); m(k,8)]*degreesPerTics, velocityScale, false, DEBUG);
+            quiverModel([m(k,1); m(k,4); m(k,7)]*degreesPerTics, [m(k,2); m(k,5); m(k,8)]*degreesPerTics, velocityScale, FORCE, DEBUG);
         end
         
     end
