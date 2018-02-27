@@ -1,9 +1,8 @@
 function centroids = findCentroidColor (k, w, p, d)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
+%% test data  
+%{
 close all; clear all; clc;
 
 %lighting conditions (dark = true, bright = false)
@@ -17,20 +16,34 @@ p = false;
 
 %debug
 d = false;
-%
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% variable initialization
 
+%lighting conditions (dark = true, bright = false)
 DARK   = k;
+
+%marker plot
 PLOT_M = w;
-PLOT   = p;
+
+%plots extra images or graphs that are good for debugging
+PLOT_I   = p;
+
+%debug messages
 DEBUG  = d;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% get image from the camera
 
 %gets image
 image = aquireImage;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% finds centroids of round objects
 %finds the centroids of the round objects in the image
-iCentroids = aquireCentroid(image, DARK, PLOT_M, PLOT, DEBUG);
+iCentroids = aquireCentroid(image, DARK, PLOT_M, PLOT_I, DEBUG);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% finds the color of the centroids
 %checks whether there are objects
 if iCentroids(1,:) == [40 4]
     %writes special error code to output if no objects
@@ -46,7 +59,7 @@ else
     end
     
     %aquires the colors of the objects
-    LAB = aquireColor(image, iCentroids, 14, PLOT, false);
+    LAB = aquireColor(image, iCentroids, 14, PLOT_I, false);
     
     if true
         LAB
@@ -80,3 +93,5 @@ else
 end
 
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

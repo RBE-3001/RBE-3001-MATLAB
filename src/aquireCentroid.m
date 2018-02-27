@@ -34,14 +34,14 @@ DARK = k;
 PLOT_M = w;
 
 %plot
-PLOT = p;
+PLOT_I = p;
 
 %debug
 DEBUG = d;
 
 if PLOT_M
-    %shows original image
-    figure;
+    %shows original image, always in figure 1
+    figure(1);
     imshow(img);
     hold on
 end
@@ -52,7 +52,7 @@ end
 h = ones(5,5) / 25;
 img2 = imfilter(img, h);
 
-if DEBUG & PLOT
+if DEBUG & PLOT_I
     figure;
     imshow(img2);
 end
@@ -69,7 +69,7 @@ else
     img3 = createMask2(img2);
 end
 
-if DEBUG & PLOT
+if DEBUG & PLOT_I
     figure;
     imshow(img3);
 end
@@ -81,7 +81,7 @@ LB = 750;
 UB = 2500;
 img4 = xor(bwareaopen(img3, LB), bwareaopen(img3, UB));
 
-if DEBUG & PLOT
+if DEBUG & PLOT_I
     figure;
     imshow(img4);
     hold on;
@@ -93,7 +93,7 @@ end
 [B,L] = bwboundaries(img4,'noholes');
 
 % Display the label matrix and draw each boundary
-if PLOT
+if PLOT_I
     imshow(label2rgb(L, @jet, [.5 .5 .5]));
 end
 
@@ -101,7 +101,7 @@ end
 for k = 1:length(B)
   boundary = B{k};
   
-  if PLOT
+  if PLOT_I
   plot(boundary(:,2), boundary(:,1), 'w', 'LineWidth', 2)
   end
   
@@ -163,7 +163,7 @@ for k = 1:length(B)
     
   end
   
-  if PLOT
+  if PLOT_I
       text(boundary(1,2)-35,boundary(1,1)+13,metric_string,'Color','y','FontSize',12,'FontWeight','bold');
   end
  

@@ -176,6 +176,9 @@ for k = 1:size(viaPts,2)
     %false = velocity
     FORCE = true;
 
+    %sets a specific figure for live plotting
+    figure(2);
+    
     %handles all live plotting: robot, trajectory, and force/velocity vector
     livePlotModel(m, k, degreesPerTics, lab, axe, forceScale, velocityScale, FORCE, PLOT, DEBUG);   
     

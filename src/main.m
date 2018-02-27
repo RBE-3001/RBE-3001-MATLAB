@@ -10,15 +10,20 @@ close all; clc; clear;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% variable declarations
 
-DEBUG   = false;                         %enables/disables debug prints
-DEBUG_COMS = true;                      %displays communication debug messages
-PLOT    = false;                         %enables/diables plotting
-DATALOG = true;                          %enables/disables data logging
-GRAVITY_COMP_TEST = false;               %enables gravity comp test, setting all PID values to 0     
+%booleans
+DEBUG             = false;    %enables/disables debug prints
+DEBUG_COMS        = false;    %displays communication debug messages
+PLOT              = true;     %enables/diables plotting
+PLOT_I            = false;    %enables/disables image plotting
+PLOT_M            = true;     %plots a marker for centroids on the camera image
+DATALOG           = true;     %enables/disables data logging
+GRAVITY_COMP_TEST = false;    %enables gravity comp test, setting all PID values to 0     
+DARK              = false;    %lighting conditions for camera (dark = true, bright = false)
 
-degreesPerTics = 360/4096;               %calibrates the degrees per encoder tic
-lab = 5;                                 %sets the lab number
-axe = [-400, 400, -400, 400, -150, 650]; %sets axis parameters for live plot
+%numerical
+degreesPerTics    = 360/4096;               %calibrates the degrees per encoder tic
+lab               = 5;                      %sets the lab number
+axe = [-400, 400, -400, 400, -150, 650];    %sets axis parameters for live plot
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% deletes old .csv files
@@ -30,6 +35,12 @@ cleanCSV();
 m = zeros(0,15);
 copym = m;
 time = zeros(1, 0);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% gets desired points from camera
+
+
+centroids = findCentroidColor(DARK, PLOT_M, PLOT_I, DEBUG); 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% trajectory generation 
@@ -59,7 +70,7 @@ encoderTrajectory = buildTrajectory( desiredPoints, interMode, interPoints, nonL
 
 tic %starts an elapse timer
 
-gripper = 0;
+gripper = 1;
 
 [mS, copymS, timeS] = moveArm (encoderTrajectory, gripper, degreesPerTics, axe, lab, GRAVITY_COMP_TEST, DATALOG, PLOT, DEBUG_COMS, DEBUG);
 
