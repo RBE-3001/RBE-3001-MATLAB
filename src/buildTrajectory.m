@@ -50,6 +50,9 @@ switch interMode
         %no interpolation
         xyzTrajectory = desiredPoints;
 end
+
+%displays the xyz trajectory
+xyzTrajectory
      
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% converts to encoder ticks and modifies point resolution

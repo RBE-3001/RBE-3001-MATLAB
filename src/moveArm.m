@@ -62,9 +62,9 @@ ki_arm = 0.0015;    % kI_Arm = 0.0015
 kd_arm = 0.01;      % kD_Arm = 0.08
 
 % Wrist PID
-kp_wrist = 0.00075; % kP_Wrist = 0.00075
-ki_wrist = 0.0005;  % kI_Wrist = 0.0005
-kd_wrist = 0.12;    % kD_Wrist = 0.04
+kp_wrist = 0.00045; % kP_Wrist = 0.00075
+ki_wrist = 0.0000;  % kI_Wrist = 0.0005
+kd_wrist = 0.04;    % kD_Wrist = 0.04
 
 % Gravity Compensation Test (Sets all PID Values to 0)
 if (gc_test)

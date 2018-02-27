@@ -82,20 +82,20 @@ classdef PacketProcessor
                 if val > 0
                     %Read back a packet of data from the HID interface
                     ret = packet.hidDevice.read(int32(packetSize), int32(1000));
-                    disp('Read from hardware');
+                    %disp('Read from hardware');
                     
-                    disp('Convert to bytes');
+                    %disp('Convert to bytes');
                     %Use a Lambda to convert all Bytes to signed integers
                     %in Matlab datatypes
                     byteArray = arrayfun(@(x)  x.byteValue(), ret);
                    
-                    disp('Reshape');
+                    %disp('Reshape');
                     %Reshape the threshholded array. The flat array of
                     %bytes is reshaped to 4x16 so each column contains all
                     %the bytes for a given value
                     sm = reshape(arrayfun(@(x)  mythreshhold(packet,x), byteArray),[4,16]);
                  
-                    disp('parse');
+                    %disp('parse');
                     if ~isempty(ret)
                            
                            for i=1:length(returnValues)

@@ -2,7 +2,7 @@ function centroids = findCentroidColor (k, w, p, d)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% test data  
-%{
+%
 close all; clear all; clc;
 
 %lighting conditions (dark = true, bright = false)
@@ -16,7 +16,7 @@ p = true;
 
 %debug
 d = true;
-%}
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% variable initialization
 
@@ -55,7 +55,7 @@ else
     %converts centroid image coordinates to robot base-frame coordiates
     centroids = zeros(size(iCentroids,1),3);
     for i = 1:size(iCentroids,1)
-        centroids(i,1:2) = mn2xy(iCentroids(i,1), iCentroids(i,2), true);
+        centroids(i,1:2) = mn2xy(iCentroids(i,1), iCentroids(i,2), DEBUG);
     end
     
     %aquires the colors of the objects

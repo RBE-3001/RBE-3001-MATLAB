@@ -18,7 +18,7 @@ PLOT_I            = false;    %enables/disables image plotting
 PLOT_M            = true;     %plots a marker for centroids on the camera image
 DATALOG           = true;     %enables/disables data logging
 GRAVITY_COMP_TEST = false;    %enables gravity comp test, setting all PID values to 0     
-DARK              = true;    %lighting conditions for camera (dark = true, bright = false)
+DARK              = false;    %lighting conditions for camera (dark = true, bright = false)
 
 %numerical
 degreesPerTics    = 360/4096;               %calibrates the degrees per encoder tic
@@ -42,10 +42,16 @@ time = zeros(1, 0);
 %% sets locations for object sorting
 
 %home and get force vector position
-homeForce = [355;0;135];
+homeForce = [355; 0; 135];
+
+%clearance home position
+homeClearance = [300; 0;150];
 
 %move arm out of the way for photo
-outOfWay = [250; 0; 300];
+photo = [250; 0; 300];
+
+%move arm out of the way for photo
+photoClearance = [200; 0; 200];
 
 %move arm to light green drop location
 dropLightGreen = [0; -180; 0];
@@ -79,11 +85,11 @@ while routine ~= 666
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% moves robot to an out of the way position to get ready for a photo
         case 10
-            %sets desired robot position to out of the way
-            desiredPoints = [currentPoint, outOfWay];
+            %sets desired robot position to photo position
+            desiredPoints = [currentPoint, photoClearance, photo];
             
             %updates current robot location
-            currentPoint = outOfWay;
+            currentPoint = photo;
             
             %makes sure gripper is open initially
             gripper = 1;
@@ -95,19 +101,20 @@ while routine ~= 666
 %% gets desired points and colors from camera
         case 0
                     
-            %checks if robot is in out of way position
+            %checks if robot is in photo position
             if last ~= 10
-                %puts robot in out of way position
+                %puts robot in photo position
                 routine = 10;
                 next = 0;
                 
             else
                 
                 %gets x,y and color data of each point of interest
-                centroids = findCentroidColor(DARK, PLOT_M, PLOT_I, DEBUG);
+                centroids = findCentroidColor(DARK, PLOT_M, PLOT_I, true);
                                
                 if centroids == [4 0 4]
                     disp('I am done sorting!');
+                    routine = 666; %terminates program
                     
                 else
                     %extracts the first color of the first object
@@ -117,12 +124,12 @@ while routine ~= 666
                         case 0 %empty
                             disp('I found an empty object');
                             %kicks out of program because no next routine case set
-                            routine = 666;
+                            routine = 666; %terminates program
 
                         case 4 %red
                             disp('I found a red object. What do I do?');
                             %kicks out of program because no next routine case set
-                            routine = 666;
+                            routine = 666; %terminates program
                             
                         otherwise
                             %sets the color code for sorting later
@@ -141,12 +148,14 @@ while routine ~= 666
             pause(1);
             
             %sets up a trajectory between the home position and the object
-            objectLocation = [centroids(1,1); centroids(1,2); -40]
+            objectLocation = [centroids(1,1); centroids(1,2); -40];
             %makes a clearance target
-            objectClearance = objectLocation;
-            %sets clearance
-            objectClearance(1,3) = 0;
+            objectClearance = [round(centroids(1,1)); round(centroids(1,2)); 0];
+
             desiredPoints = [currentPoint, objectClearance, objectLocation];
+            
+            %displays the desired points
+            desiredPoints
             
             %updates current robot location
             currentPoint = objectLocation; 
@@ -191,7 +200,7 @@ while routine ~= 666
         case 11
             %sets up a trajectory between the objectLocation and the weigh
             %position
-            desiredPoints = [currentPoint, homeForce];
+            desiredPoints = [currentPoint, homeClearance, homeForce];
             
             last = routine;
             routine = 105; %build trajectory, quintic interpolation
@@ -205,7 +214,7 @@ while routine ~= 666
             
             last = routine;
             routine = 100; %stationary trajectory, no interpolation
-            res = 50; %data resolution
+            res = 25; %data resolution
             next = 1;
             
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -228,15 +237,15 @@ while routine ~= 666
                 if avgZForce > 350 %heavy
                     switch colorFirst
                         case 1 %move arm to heavy yellow drop location
-                            desiredPoints = [homeForce, dropHeavyYellow];
+                            desiredPoints = [homeForce, homeClearance, dropHeavyYellow];
                             currentPoint = dropHeavyYellow;
 
                         case 2 %move arm to heavy green drop location
-                            desiredPoints = [homeForce, dropHeavyLight];
+                            desiredPoints = [homeForce, homeClearance, dropHeavyLight];
                             currentPoint = dropHeavyGreen;
 
                         case 3 %move arm to heavy blue drop location
-                            desiredPoints = [homeForce, dropHeavyBlue];
+                            desiredPoints = [homeForce, homeClearance, dropHeavyBlue];
                             currentPoint = dropHeavyBlue;
                             
                     end
@@ -244,15 +253,15 @@ while routine ~= 666
                 else %light
                     switch colorFirst
                         case 1 %move arm to heavy yellow drop location
-                            desiredPoints = [homeForce, dropLightYellow];
+                            desiredPoints = [homeForce, homeClearance, dropLightYellow];
                             currentPoint = dropLightYellow;
 
                         case 2 %move arm to heavy green drop location
-                            desiredPoints = [homeForce, dropLightGreen];
+                            desiredPoints = [homeForce, homeClearance, dropLightGreen];
                             currentPoint = dropLightGreen;
 
                         case 3 %move arm to heavy blue drop location
-                            desiredPoints = [homeForce, dropLightBlue];
+                            desiredPoints = [homeForce, homeClearance, dropLightBlue];
                             currentPoint = dropLightBlue;
                     end
                 end
@@ -286,7 +295,7 @@ while routine ~= 666
             interMode = 5;
             
             %number of points between interpolations
-            interPoints = 50;
+            interPoints = 25;
             
             %duration (s) between intermpolations
             nonLinearInterDuration = 3;

@@ -15,7 +15,7 @@ pause(1)
 img = snapshot(cam);
 
 %lighting conditions (dark = true, bright = false)
-k = false;
+k = true;
 
 %marker plot
 w = true;
@@ -153,13 +153,13 @@ for k = 1:length(B)
       
       %converts centroid data to robot reference frame
       cent = mn2xy(centroid(1), centroid(2), DEBUG);
-      
+           
       %gabs x and y of converted centroid
       centX = cent(1,1);
       centY = cent(1,2);
       
       %sets acceptable centroid bounds      
-      xBoundUpper = 250;
+      xBoundUpper = 275;
       xBoundLower = 0;
       yBoundUpper = 125;
       yBoundLower = -125;
@@ -176,7 +176,7 @@ for k = 1:length(B)
       end
     
     if DEBUG
-        disp(sprintf('threshold = %f, metric = %f, length(B) = %d, Number of Circles: %d', threshold, metric, length(B), numCircles));
+        disp(sprintf('centX = %f, centY = %f, threshold = %f, metric = %f, length(B) = %d, Number of Circles: %d', centX, centY, threshold, metric, length(B), numCircles));
         centM
     end
     
