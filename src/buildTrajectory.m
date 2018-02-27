@@ -54,8 +54,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% converts to encoder ticks and modifies point resolution
 
-xyzTrajectory
-
 %converts x-y-z points (mm) to encoder values, can increase the number of
 %identical points for greater data resolution when points are far apart
 encoderTrajectory = pointResolution(xyzTrajectory, res, degreesPerTics, DEBUG);

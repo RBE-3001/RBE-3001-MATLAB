@@ -57,7 +57,7 @@ ki_base = 0.0005;   % kI_Base = 0.0005
 kd_base = 0.02;     % kD_Base = 0.02
 
 % Shoulder PID
-kp_arm = 0.01;      % kP_Arm = 0.01
+kp_arm = 0.0095;      % kP_Arm = 0.01
 ki_arm = 0.0015;    % kI_Arm = 0.0015
 kd_arm = 0.08;      % kD_Arm = 0.08
 
@@ -131,7 +131,10 @@ for k = 1:size(viaPts,2)
     %Send packet to the server and get the response
     returnPacket = pp.command(SERV_ID, packet);
     
-    toc %displays the elapsed time since tic
+    %displays the elapsed time since tic
+    if DEBUG
+        toc 
+    end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% critical data logging

@@ -12,10 +12,10 @@ k = false;
 w = true;
 
 %plot
-p = false;
+p = true;
 
 %debug
-d = false;
+d = true;
 %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% variable initialization

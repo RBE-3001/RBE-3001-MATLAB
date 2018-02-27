@@ -53,7 +53,7 @@ h = ones(5,5) / 25;
 img2 = imfilter(img, h);
 
 if DEBUG & PLOT_I
-    figure;
+    figure(3);
     imshow(img2);
 end
 
@@ -70,7 +70,7 @@ else
 end
 
 if DEBUG & PLOT_I
-    figure;
+    figure(4);
     imshow(img3);
 end
 
@@ -82,7 +82,7 @@ UB = 2500;
 img4 = xor(bwareaopen(img3, LB), bwareaopen(img3, UB));
 
 if DEBUG & PLOT_I
-    figure;
+    figure(5);
     imshow(img4);
     hold on;
 end
@@ -102,7 +102,8 @@ for k = 1:length(B)
   boundary = B{k};
   
   if PLOT_I
-  plot(boundary(:,2), boundary(:,1), 'w', 'LineWidth', 2)
+      figure(5)
+      plot(boundary(:,2), boundary(:,1), 'w', 'LineWidth', 2)
   end
   
 end
@@ -157,6 +158,7 @@ for k = 1:length(B)
     end
     
     if PLOT_M
+        figure(1);
         %plots centroid locations of circles
         plot(centroid(1),centroid(2),'ko');
     end
@@ -164,6 +166,7 @@ for k = 1:length(B)
   end
   
   if PLOT_I
+      figure(5)
       text(boundary(1,2)-35,boundary(1,1)+13,metric_string,'Color','y','FontSize',12,'FontWeight','bold');
   end
  
