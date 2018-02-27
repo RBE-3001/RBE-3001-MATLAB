@@ -146,7 +146,7 @@ if DATALOG
 %% save and plot determinant of Jp
     
     %writes a .csv file for the determinant of Jp
-    detJp = zeros(size(m,1),1);
+    detJp = zeros(size(m,1), 1);
     for k = 1:size(m,1)
         J = jacob0([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], DEBUG);
         detJp(k,1) = det(J(1:3,:));
@@ -178,9 +178,9 @@ if DATALOG
         Velocity(k,1:3) = fwddiffkin3001([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], [joint1Velocities(1,k); joint2Velocities(1,k); joint3Velocities(1,k)], DEBUG).';
     end
     
-    xVelocity = Velocity(1:(size(Velocity,1)-1),1).';
-    yVelocity = Velocity(1:(size(Velocity,1)-1),2).';
-    zVelocity = Velocity(1:(size(Velocity,1)-1),3).';
+    xVelocity = Velocity(1:(size(Velocity,1)-1), 1).';
+    yVelocity = Velocity(1:(size(Velocity,1)-1), 2).';
+    zVelocity = Velocity(1:(size(Velocity,1)-1), 3).';
     dlmwrite('X-Y-Z-Velocity.csv', timeV, '-append');
     dlmwrite('X-Y-Z-Velocity.csv', xVelocity, '-append');
     dlmwrite('X-Y-Z-Velocity.csv', yVelocity, '-append');
@@ -206,9 +206,9 @@ if DATALOG
 %% save and plot joint toques
 
     %writes a .csv file for just the arm's joint angles
-    joint1Torques = ADCToTorque(m(:,3),1,true).';
-    joint2Torques = ADCToTorque(m(:,6),2,true).';
-    joint3Torques = ADCToTorque(m(:,9),3,true).';
+    joint1Torques = ADCToTorque(m(:,3), 1, DEBUG).';
+    joint2Torques = ADCToTorque(m(:,6), 2, DEBUG).';
+    joint3Torques = ADCToTorque(m(:,9), 3, DEBUG).';
     dlmwrite('JointTorque.csv', time, '-append');
     dlmwrite('JointTorque.csv', joint1Torques, '-append');
     dlmwrite('JointTorque.csv', joint2Torques, '-append');
@@ -231,14 +231,14 @@ if DATALOG
     
     %writes a .csv file for the X-Y-Z forces of the TCP using position and
     %joint torques
-    Force = zeros(size(m,1),3);
-    for k = 1:size(m,1)-1
+    Force = zeros(size(m,1), 3);
+    for k = 1:size(m, 1)-1
         Force(k,1:3) = statics3001([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], [joint1Torques(1,k); joint2Torques(1,k); joint3Torques(1,k)], DEBUG).';
     end
     
-    xForce = Force(1:size(Force,1)-1,1).';
-    yForce = Force(1:size(Force,1)-1,2).';
-    zForce = Force(1:size(Force,1)-1,3).';
+    xForce = Force(1:size(Force,1)-1, 1).';
+    yForce = Force(1:size(Force,1)-1, 2).';
+    zForce = Force(1:size(Force,1)-1, 3).';
     dlmwrite('X-Y-Z-Force.csv', timeV, '-append');
     dlmwrite('X-Y-Z-Force.csv', xForce, '-append');
     dlmwrite('X-Y-Z-Force.csv', yForce, '-append');
@@ -265,7 +265,7 @@ if DATALOG
 %% save and averages load cell readings
     
     %initializes average matrix
-    averageLoadCell = zeros(1,3);
+    averageLoadCell = zeros(1, 3);
     
     %grabs load cell values and averages them
     for i = 1:3
@@ -274,13 +274,13 @@ if DATALOG
         
         for j = 1:size(copym,1)
             %adds up all load cell readings
-            sum = sum + copym(j,i*3);
+            sum = sum + copym(j, i*3);
             %incriments counter
             count = count + 1;
         end
         
         %writes average to matrix
-        averageLoadCell(1,i) = sum/count;
+        averageLoadCell(1, i) = sum/count;
         
     end
     

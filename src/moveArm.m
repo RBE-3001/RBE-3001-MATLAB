@@ -1,4 +1,4 @@
-function [m, copym, time] = moveArm (v, g, dpt, a, l, dL, p, dC, d, gc_test)
+function [m, copym, time] = moveArm (v, g, dpt, a, l, gT, dL, p, dC, d)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% sets java path
 javaaddpath('../    lib/hid4java-0.5.1.jar');
@@ -11,6 +11,42 @@ import org.hid4java.event.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.lang.*;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% variable initialization
+
+%trajectory in encoder ticks
+viaPts = v;
+
+%opens or closes the gripper during the trajectory
+gripper = g;
+
+%calibrates the degrees per encoder tic
+degreesPerTics = dpt;
+
+%applies axis configuration for plots
+axe = a;
+
+%sets the lab number
+lab = l;
+
+%packet processor (device ID)
+pp = PacketProcessor(7);
+
+%gravity compensation test
+gc_test = gT;
+
+%logs data
+DATALOG = dL;
+
+%plotting functions
+PLOT = p;
+
+%communication debug statements
+DEBUG_COMS = dC;
+
+%debug messages
+DEBUG = d;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% PID Constants      Tested Values
@@ -36,39 +72,6 @@ if (gc_test)
     kp_arm = 0; ki_arm = 0; kd_arm = 0;
     kp_wrist = 0; ki_wrist = 0; kd_wrist = 0;
 end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% variable initialization
-
-%trajectory in encoder ticks
-viaPts = v;
-
-%opens or closes the gripper during the trajectory
-gripper = g;
-
-%calibrates the degrees per encoder tic
-degreesPerTics = dpt;
-
-%applies axis configuration for plots
-axe = a;
-
-%sets the lab number
-lab = l;
-
-%packet processor (device ID)
-pp = PacketProcessor(7);
-
-%logs data
-DATALOG = dL;
-
-%plotting functions
-PLOT = p;
-
-%communication debug statements
-DEBUG_COMS = dC;
-
-%debug messages
-DEBUG = d;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% server selection
@@ -122,7 +125,7 @@ for k = 1:size(viaPts,2)
     packet(15) = kd_wrist; % kD Constant
     
     %actuates the gripper: 1 opens gripper and 0 closes gripper
-    packet(16) = gripper;
+    packet(2) = gripper; %supposed to be packet 16, but eclipse only reads the first 15 packets
     
     
     %Send packet to the server and get the response

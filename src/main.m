@@ -11,8 +11,8 @@ close all; clc; clear;
 %% variable declarations
 
 DEBUG   = false;                         %enables/disables debug prints
-DEBUG_COMS = false;                      %displays communication debug messages
-PLOT    = true;                         %enables/diables plotting
+DEBUG_COMS = true;                      %displays communication debug messages
+PLOT    = false;                         %enables/diables plotting
 DATALOG = true;                          %enables/disables data logging
 GRAVITY_COMP_TEST = false;               %enables gravity comp test, setting all PID values to 0     
 
@@ -23,6 +23,13 @@ axe = [-400, 400, -400, 400, -150, 650]; %sets axis parameters for live plot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% deletes old .csv files
 cleanCSV();
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% core matrix initialization
+
+%initializes empty matricies for core data logging
+m = zeros(0,15);
+copym = m;
+time = zeros(1, 0);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% trajectory generation 
@@ -54,7 +61,12 @@ tic %starts an elapse timer
 
 gripper = 0;
 
-[m, copym, time] = moveArm (encoderTrajectory, gripper, degreesPerTics, axe, lab, DATALOG, PLOT, DEBUG_COMS, DEBUG, GRAVITY_COMP_TEST);
+[mS, copymS, timeS] = moveArm (encoderTrajectory, gripper, degreesPerTics, axe, lab, GRAVITY_COMP_TEST, DATALOG, PLOT, DEBUG_COMS, DEBUG);
+
+%concatenation of core data logging matricies
+m = [m; mS];
+copym = [copym; copymS];
+time = [time, timeS];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% data logging and post process plotting
