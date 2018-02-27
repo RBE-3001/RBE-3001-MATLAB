@@ -12,8 +12,10 @@ close all; clc; clear;
 
 DEBUG   = false;                         %enables/disables debug prints
 DEBUG_COMS = false;                      %displays communication debug messages
-PLOT    = true;                          %enables/diables plotting
+PLOT    = true;                         %enables/diables plotting
 DATALOG = true;                          %enables/disables data logging
+GRAVITY_COMP_TEST = false;               %enables gravity comp test, setting all PID values to 0     
+
 degreesPerTics = 360/4096;               %calibrates the degrees per encoder tic
 lab = 5;                                 %sets the lab number
 axe = [-400, 400, -400, 400, -150, 650]; %sets axis parameters for live plot
@@ -50,9 +52,9 @@ encoderTrajectory = buildTrajectory( desiredPoints, interMode, interPoints, nonL
 
 tic %starts an elapse timer
 
-gripper = 1;
+gripper = 0;
 
-[m, copym, time] = moveArm (encoderTrajectory, gripper, degreesPerTics, axe, lab, DATALOG, PLOT, DEBUG_COMS, DEBUG);
+[m, copym, time] = moveArm (encoderTrajectory, gripper, degreesPerTics, axe, lab, DATALOG, PLOT, DEBUG_COMS, DEBUG, GRAVITY_COMP_TEST);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% data logging and post process plotting
