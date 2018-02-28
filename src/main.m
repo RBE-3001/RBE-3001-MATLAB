@@ -18,7 +18,7 @@ PLOT_I            = false;    %enables/disables image plotting
 PLOT_M            = true;     %plots a marker for centroids on the camera image
 DATALOG           = true;     %enables/disables data logging
 GRAVITY_COMP_TEST = false;    %enables gravity comp test, setting all PID values to 0     
-DARK              = false;    %lighting conditions for camera (dark = true, bright = false)
+DARK              = true;    %lighting conditions for camera (dark = true, bright = false)
 
 %numerical
 degreesPerTics    = 360/4096;               %calibrates the degrees per encoder tic

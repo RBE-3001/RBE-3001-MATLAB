@@ -6,7 +6,7 @@ function centroids = findCentroidColor (k, w, p, d)
 close all; clear all; clc;
 
 %lighting conditions (dark = true, bright = false)
-k = false;
+k = true;
 
 %marker plot
 w = true;

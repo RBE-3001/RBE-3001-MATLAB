@@ -91,7 +91,7 @@ end
 % Gravity Compensation Test (Sets all PID Values to 0)
 if (gc_test)
     kp_base = 0; ki_base = 0; kd_base = 0;
-    kp_arm = 0; ki_arm = 0; kd_arm = 0;
+    kp_arm = 0 ;ki_arm = 0; kd_arm = 0;
     kp_wrist = 0; ki_wrist = 0; kd_wrist = 0;
 end
 
