@@ -21,9 +21,9 @@ ki_base = 0.0005;   % kI_Base = 0.0005
 kd_base = 0.02;     % kD_Base = 0.02
 
 % Shoulder PID
-kp_arm = 0.01;      % kP_Arm = 0.01
+kp_arm = 0.005;      % kP_Arm = 0.01
 ki_arm = 0.0015;    % kI_Arm = 0.0015
-kd_arm = 0.08;      % kD_Arm = 0.08
+kd_arm = 0.07;      % kD_Arm = 0.08
 
 % Wrist PID
 kp_wrist = 0.00075; % kP_Wrist = 0.00075
