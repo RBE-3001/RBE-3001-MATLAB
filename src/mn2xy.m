@@ -49,7 +49,7 @@ sf_cur = percentage * (sf_arm - sf_cam) + sf_cam;
 y = sf_cur * (m - hole_pixel(1))*(10);
 
 %polynomic angle compensation for X based on experimental data
-x0 = (x-152)/abs(x-152)*12 + 47.7127;
+x0 = (x-152)/abs(x-152)*((x-152)/100)*10 + 47.7127;
 angleCompX = -0.0005*x^(2) + -0.2362*x^(1) + (x0)*x^(0);
 
 %coefficents for y-component compensation are compensated by the x distance

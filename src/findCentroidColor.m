@@ -2,7 +2,7 @@ function centroids = findCentroidColor (k, w, p, d)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% test data  
-%
+%{
 close all; clear all; clc;
 
 %lighting conditions (dark = true, bright = false)
@@ -16,7 +16,7 @@ p = true;
 
 %debug
 d = true;
-%
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% variable initialization
 
@@ -64,8 +64,10 @@ else
     
     
     %aquires the colors of the objects
-    %LAB = aquireColor(image, iCentroids, 14, PLOT_I, false);
-    LAB = aquireColor(image, iCentroids, 7, PLOT_I, false);
+    LAB = aquireColor(image, iCentroids, 14, PLOT_I, false);
+    
+    %M & M sorting
+    %LAB = aquireColor(image, iCentroids, 7, PLOT_I, false);
     
     if DEBUG
         LAB

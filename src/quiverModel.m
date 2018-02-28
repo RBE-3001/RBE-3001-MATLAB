@@ -79,6 +79,6 @@ T = gcf;
     view(45,45);
 
 %graphs the velocity vectors
-quiver3(x, y, z, u, v, w, scale);
+quiver3(x, y, z, u, v, -w, scale);
 
 end

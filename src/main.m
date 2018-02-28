@@ -95,6 +95,9 @@ while routine ~= 666
             %makes sure gripper is open initially
             gripper = 1;
             
+            %sets PID position compensation
+            PID_Up = true;
+            
             last = routine;
             routine = 105; %build trajectory, quintic interpolation
             
@@ -149,8 +152,10 @@ while routine ~= 666
             pause(1);
             
             %sets up a trajectory between the home position and the object
-            %objectLocation = [centroids(1,1); centroids(1,2); -40];
-            objectLocation = [centroids(1,1); centroids(1,2); -60];
+            objectLocation = [centroids(1,1); centroids(1,2); -40];
+            
+            %M & M sorting
+            %objectLocation = [centroids(1,1); centroids(1,2); -60];
             
             %makes a clearance target
             objectClearance = [round(centroids(1,1)); round(centroids(1,2)); 0];
@@ -238,7 +243,7 @@ while routine ~= 666
                                 
                 last = routine;
                 %selects set-down position based on weight and color
-                if avgZForce > 37 %-0.14 %heavy
+                if avgZForce > 38.5 %heavy
                     switch colorFirst
                         case 1 %move arm to heavy yellow drop location
                             desiredPoints = [homeForce, homeClearance, dropHeavyYellow];
@@ -318,7 +323,7 @@ while routine ~= 666
         case 200
             tic %starts an elapse timer
                       
-            [mS, copymS, timeS] = moveArm (encoderTrajectory, gripper, degreesPerTics, axe, lab, GRAVITY_COMP_TEST, DATALOG, PLOT, DEBUG_COMS, DEBUG);
+            [mS, copymS, timeS] = moveArm (encoderTrajectory, gripper, degreesPerTics, axe, lab, GRAVITY_COMP_TEST, PID_Up, DATALOG, PLOT, DEBUG_COMS, DEBUG);
             
             %concatenation of core data logging matricies
             m = [m; mS];

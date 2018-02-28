@@ -1,4 +1,4 @@
-function [m, copym, time] = moveArm (v, g, dpt, a, l, gT, dL, p, dC, d)
+function [m, copym, time] = moveArm (v, g, dpt, a, l, gT, pU, dL, p, dC, d)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% sets java path
 javaaddpath('../    lib/hid4java-0.5.1.jar');
@@ -36,6 +36,9 @@ pp = PacketProcessor(7);
 %gravity compensation test
 gc_test = gT;
 
+%PID adjustment
+PID_Up = pU;
+
 %logs data
 DATALOG = dL;
 
@@ -51,20 +54,39 @@ DEBUG = d;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% PID Constants      Tested Values
 
-% Base PID
-kp_base = 0.002;    % kP_Base = 0.002
-ki_base = 0.0005;   % kI_Base = 0.0005
-kd_base = 0.02;     % kD_Base = 0.02
+%if Arm is going to a vertical position, the PID values get adjusted
+if PID_Up
+    % Alternate Base PID
+    kp_base = 0.002;    % kP_Base = 0.002
+    ki_base = 0.0005;   % kI_Base = 0.0005
+    kd_base = 0.02;     % kD_Base = 0.02
 
-% Shoulder PID
-kp_arm = 0.005;      % kP_Arm = 0.01
-ki_arm = 0.0015;    % kI_Arm = 0.0015
-kd_arm = 0.01;      % kD_Arm = 0.08
+    % Alternate Shoulder PID
+    kp_arm = 0.001;      % kP_Arm = 0.01
+    ki_arm = 0.0035;    % kI_Arm = 0.0015
+    kd_arm = 0.05;      % kD_Arm = 0.08
 
-% Wrist PID
-kp_wrist = 0.00045; % kP_Wrist = 0.00075
-ki_wrist = 0.0005;  % kI_Wrist = 0.0005
-kd_wrist = 0.04;    % kD_Wrist = 0.04
+    % Alternate Wrist PID
+    kp_wrist = 0.00045; % kP_Wrist = 0.00075
+    ki_wrist = 0.001;  % kI_Wrist = 0.0005
+    kd_wrist = 0.02;    % kD_Wrist = 0.04
+    
+else
+    % Base PID
+    kp_base = 0.002;    % kP_Base = 0.002
+    ki_base = 0.0005;   % kI_Base = 0.0005
+    kd_base = 0.02;     % kD_Base = 0.02
+
+    % Shoulder PID
+    kp_arm = 0.005;      % kP_Arm = 0.01
+    ki_arm = 0.0015;    % kI_Arm = 0.0015
+    kd_arm = 0.01;      % kD_Arm = 0.08
+
+    % Wrist PID
+    kp_wrist = 0.00045; % kP_Wrist = 0.00075
+    ki_wrist = 0.0005;  % kI_Wrist = 0.0005
+    kd_wrist = 0.04;    % kD_Wrist = 0.04
+end
 
 % Gravity Compensation Test (Sets all PID Values to 0)
 if (gc_test)
