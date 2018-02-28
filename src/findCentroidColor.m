@@ -6,7 +6,7 @@ function centroids = findCentroidColor (k, w, p, d)
 close all; clear all; clc;
 
 %lighting conditions (dark = true, bright = false)
-k = true;
+k = false;
 
 %marker plot
 w = true;
@@ -58,10 +58,16 @@ else
         centroids(i,1:2) = mn2xy(iCentroids(i,1), iCentroids(i,2), DEBUG);
     end
     
-    %aquires the colors of the objects
-    LAB = aquireColor(image, iCentroids, 14, PLOT_I, false);
-    
     if true
+        centroids
+    end
+    
+    
+    %aquires the colors of the objects
+    %LAB = aquireColor(image, iCentroids, 14, PLOT_I, false);
+    LAB = aquireColor(image, iCentroids, 7, PLOT_I, false);
+    
+    if DEBUG
         LAB
     end
     

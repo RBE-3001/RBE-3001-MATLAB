@@ -45,31 +45,31 @@ time = zeros(1, 0);
 homeForce = [355; 0; 135];
 
 %clearance home position
-homeClearance = [300; 0;150];
+homeClearance = [300; 0; 135];
 
 %move arm out of the way for photo
 photo = [250; 0; 300];
 
 %move arm out of the way for photo
-photoClearance = [200; 0; 200];
+photoClearance = [150; 0; 300];
 
 %move arm to light green drop location
-dropLightGreen = [0; -180; 0];
+dropLightGreen = [50; -180; 0];
 
 %move arm to heavy green drop location
-dropHeavyGreen = [0; 180; 0];
+dropHeavyGreen = [50; 180; 0];
 
 %move arm to light blue drop location
-dropLightBlue = [100; -180; 0];
+dropLightBlue = [150; -180; 0];
 
 %move arm to heavy blue drop location
-dropHeavyBlue = [100; 180; 0];
+dropHeavyBlue = [150; 180; 0];
 
 %move arm to light yellow drop location
-dropLightYellow = [200; -180; 0];
+dropLightYellow = [250; -180; 0];
 
 %move arm to heavy yellow drop location
-dropHeavyYellow = [200; 180; 0];
+dropHeavyYellow = [250; 180; 0];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% sets initial position as home position
 
@@ -79,6 +79,7 @@ currentPoint = homeForce;
 while routine ~= 666
     
     disp(sprintf('last = %d, routine = %d, next = %d', last, routine, next));
+    currentPoint
     
     switch routine
         
@@ -148,7 +149,9 @@ while routine ~= 666
             pause(1);
             
             %sets up a trajectory between the home position and the object
-            objectLocation = [centroids(1,1); centroids(1,2); -40];
+            %objectLocation = [centroids(1,1); centroids(1,2); -40];
+            objectLocation = [centroids(1,1); centroids(1,2); -60];
+            
             %makes a clearance target
             objectClearance = [round(centroids(1,1)); round(centroids(1,2)); 0];
 
@@ -214,7 +217,7 @@ while routine ~= 666
             
             last = routine;
             routine = 100; %stationary trajectory, no interpolation
-            res = 25; %data resolution
+            res = 10; %data resolution
             next = 1;
             
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -230,18 +233,19 @@ while routine ~= 666
                 %find average z force over previous stationary
                 avgZForce = calculateForces(mS, degreesPerTics, DEBUG);
                 
-                avgZForce
+                
+                dlmwrite('avgZForce.csv', avgZForce, '-append');
                                 
                 last = routine;
                 %selects set-down position based on weight and color
-                if avgZForce > 350 %heavy
+                if avgZForce > 37 %-0.14 %heavy
                     switch colorFirst
                         case 1 %move arm to heavy yellow drop location
                             desiredPoints = [homeForce, homeClearance, dropHeavyYellow];
                             currentPoint = dropHeavyYellow;
 
                         case 2 %move arm to heavy green drop location
-                            desiredPoints = [homeForce, homeClearance, dropHeavyLight];
+                            desiredPoints = [homeForce, homeClearance, dropHeavyGreen];
                             currentPoint = dropHeavyGreen;
 
                         case 3 %move arm to heavy blue drop location

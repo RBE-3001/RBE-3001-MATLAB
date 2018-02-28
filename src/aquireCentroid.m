@@ -15,7 +15,7 @@ pause(1)
 img = snapshot(cam);
 
 %lighting conditions (dark = true, bright = false)
-k = true;
+k = false;
 
 %marker plot
 w = true;
@@ -77,8 +77,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %remove tiny bits
-LB = 750;
-UB = 2500;
+%LB = 750;
+%UB = 2500;
+LB = 75;
+UB = 500;
 img4 = xor(bwareaopen(img3, LB), bwareaopen(img3, UB));
 
 if DEBUG & PLOT_I
@@ -113,7 +115,8 @@ stats = regionprops(L,'Area','Centroid');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %threshold of % likelyhood that an object is a circle
-threshold = 0.50;
+%threshold = 0.60;
+threshold = 0.85;
 
 %initialize centroid matrix's minimum size
 centM = zeros(length(B),2);

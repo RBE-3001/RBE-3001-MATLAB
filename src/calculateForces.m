@@ -23,7 +23,8 @@ for k = 1:size(m, 1)-1
 end
 
 %extracts specifically the z-force
-zForce = Force(1:size(Force,1)-1, 3);
+%zForce = Force(1:size(Force,1)-1, 3);
+zForce = joint2Torques;
 
 %initializes variables for calculating the average z force
 sum = 0;
@@ -36,6 +37,6 @@ for i = 1:size(zForce)
 end
 
 %calculates average z force
-avgZForce = sum/count;
+avgZForce = -sum/count;
 
 end

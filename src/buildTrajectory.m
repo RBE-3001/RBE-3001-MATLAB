@@ -52,7 +52,9 @@ switch interMode
 end
 
 %displays the xyz trajectory
-xyzTrajectory
+if DEBUG
+    xyzTrajectory
+end
      
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% converts to encoder ticks and modifies point resolution
