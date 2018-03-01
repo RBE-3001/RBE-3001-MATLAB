@@ -28,8 +28,8 @@ Jp = J(1:3,:);
 
 %calculates the vector of task-space velocities
 qd = inv(Jp)*pd;
-
-r = rank(Jp)
+disp(sprintf('rank = %f', rank(Jp)));
+r = rank(Jp);
 
 if r < 3
     disp('close to a singularity. Requested joint velocities are potentially too high.')

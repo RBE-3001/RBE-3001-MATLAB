@@ -16,7 +16,7 @@ n = 10;
 time = 5;
 
 d = true;
-%}    
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 DEBUG = d;
@@ -42,7 +42,7 @@ for u = 1:size(p,1)
         %grabs the two points to interpolate between from the the input
         %trajectory
         positions = [p(u,y); p(u,y+1)];
-        
+       
         if DEBUG
             positions
         end
@@ -77,30 +77,31 @@ for u = 1:size(p,1)
             t_0 = timeOffset;
             t_f = timeOffset + time;
             
-        %This is the main base matrix
-        QBaseM = [1,  t_0, (t_0)^2,   (t_0)^3,    (t_0)^4,    (t_0)^5;
-                  0,    1, 2*(t_0), 3*(t_0)^2,  4*(t_0)^3,  5*(t_0)^4;
-                  0,    0,       2,   6*(t_0), 12*(t_0)^2, 20*(t_0)^3;
-                  1,  t_f, (t_f)^2,   (t_f)^3,    (t_f)^4,    (t_f)^5;
-                  0,    1, 2*(t_f), 3*(t_f)^2,  4*(t_f)^3,  5*(t_f)^4;
-                  0,    0,       2,   6*(t_f), 12*(t_f)^2, 20*(t_f)^3];
-        if DEBUG
-            QBaseM
-            rankQ = rank(QBaseM);
-            rankQ
-            terms
-        end
-              
-              
-        %Quintic Polynomial Coeficents
-        %A = [a0; a1; a2; a3; a4; a5]
-        
-        
-        %Matrix Output
-        A = (inv(QBaseM))*terms;
-        
-        else 
+            %This is the main base matrix
+            QBaseM = [1,  t_0, (t_0)^2,   (t_0)^3,    (t_0)^4,    (t_0)^5;
+                      0,    1, 2*(t_0), 3*(t_0)^2,  4*(t_0)^3,  5*(t_0)^4;
+                      0,    0,       2,   6*(t_0), 12*(t_0)^2, 20*(t_0)^3;
+                      1,  t_f, (t_f)^2,   (t_f)^3,    (t_f)^4,    (t_f)^5;
+                      0,    1, 2*(t_f), 3*(t_f)^2,  4*(t_f)^3,  5*(t_f)^4;
+                      0,    0,       2,   6*(t_f), 12*(t_f)^2, 20*(t_f)^3];
+                  if DEBUG
+                      QBaseM
+                      rankQ = rank(QBaseM);
+                      rankQ
+                      terms
+                  end
+                  
+                  
+                  %Quintic Polynomial Coeficents
+                  %A = [a0; a1; a2; a3; a4; a5]
+                  
+                  
+                  %Matrix Output
+                  A = (inv(QBaseM))*terms;
+                  
+        else
             A = zeros(6,1);
+            A(1,1) = q_0;
         end
         
         if DEBUG
@@ -110,7 +111,7 @@ for u = 1:size(p,1)
         %creates a time matrix for plugging into the quintic funciton
         t = zeros(1,n);
         for j = 1:n
-        
+            
             if DEBUG
                 t
                 j
@@ -119,7 +120,7 @@ for u = 1:size(p,1)
             end
             
             t(1,j) = time/n*j + timeOffset;
-        
+            
         end
         
         if DEBUG
@@ -129,7 +130,7 @@ for u = 1:size(p,1)
         
         %builds the quintic trajectory with the quintic function
         if y == 1
-        qT(u,1) = A(1,1); 
+            qT(u,1) = A(1,1);
         end
         
         for k = 1:n

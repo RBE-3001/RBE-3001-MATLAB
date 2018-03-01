@@ -4,358 +4,345 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% take out the trash
 close all; clc; clear;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% variable declarations
 
-javaaddpath('../    lib/hid4java-0.5.1.jar');
+%booleans
+DEBUG             = false;    %enables/disables debug prints
+DEBUG_COMS        = false;    %displays communication debug messages
+PLOT              = true;    %enables/diables plotting
+PLOT_I            = false;    %enables/disables image plotting
+PLOT_M            = true;     %plots a marker for centroids on the camera image
+DATALOG           = true;     %enables/disables data logging
+GRAVITY_COMP_TEST = false;    %enables gravity comp test, setting all PID values to 0     
+DARK              = true;    %lighting conditions for camera (dark = true, bright = false)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-import org.hid4java.*;
-import org.hid4java.event.*;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.lang.*;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-pp = PacketProcessor(7); % deviceID == 7
-
-DEBUG   = false;          % enables/disables debug prints
-PLOT    = true;          % enables/diables plotting
-DATALOG = true;          % enables/disables data logging
-degreesPerTics = 360/4096;    %calibrates the degrees per encoder tic
-lab = 4;                  %sets the lab number                                                          
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                                                            
-delete armEncoderValues.csv;
-delete JointAngles.csv;
-delete JointVelocities.csv;
-delete X-Y-Z-Position.csv;
-delete JointAcceletations.csv;
-delete TCP.csv;
-delete detJp.csv;
-delete X-Y-Z-Velocity.csv;
+%numerical
+degreesPerTics    = 360/4096;               %calibrates the degrees per encoder tic
+lab               = 5;                      %sets the lab number
+axe = [-400, 400, -400, 400, -150, 650];    %sets axis parameters for live plot
+routine           = 0;                      %controls what swtich case is active
+last              = 0;                      %record of last case
+next              = 1;                      %controls what logic next case is after any auxilary tasks
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Create a PacketProcessor object to send data to the nucleo firmware
-SERV_ID = 37;            % we will be talking to server ID 37 on
-% the Nucleo
-
+%% deletes old .csv files
+cleanCSV();
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% core matrix initialization
 
-% Instantiate a packet - the following instruction allocates 64
-% bytes for this purpose. Recall that the HID interface supports
-% packet sizes up to 64 bytes.
-packet = zeros(15, 1, 'single');
-
+%initializes empty matricies for core data logging
+m = zeros(0,15);
+copym = m;
+time = zeros(1, 0);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% sets locations for object sorting
 
-%{
-%creates a full trajectory with the same set-point for each joint with data points
-holdSize = 10;
-setPts = [0, 1000, 300, 700, 100, 800, 0]; %must be positive because the 
-                            %elbow joint doesnt tollerate negative values
-viaPts = zeros(3,size(setPts*holdSize,2));
-                            
-for k = 1:size(setPts,2)
-    viaPts(:,holdSize*(k-1)+1:holdSize*k) = setPts(1,k);
-end
-%}
+%home and get force vector position
+homeForce = [355; 0; 135];
 
+%clearance home position
+homeClearance = [300; 0; 135];
+
+%move arm out of the way for photo
+photo = [250; 0; 300];
+
+%move arm out of the way for photo
+photoClearance = [150; 0; 300];
+
+%move arm to light green drop location
+dropLightGreen = [50; -180; 0];
+
+%move arm to heavy green drop location
+dropHeavyGreen = [50; 180; 0];
+
+%move arm to light blue drop location
+dropLightBlue = [150; -180; 0];
+
+%move arm to heavy blue drop location
+dropHeavyBlue = [150; 180; 0];
+
+%move arm to light yellow drop location
+dropLightYellow = [250; -180; 0];
+
+%move arm to heavy yellow drop location
+dropHeavyYellow = [250; 180; 0];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% sets initial position as home position
 
-%takes a maxix of X-Y-Z set-points and uses inverse kinematics to produce
-%a trajectory with variable data resolution
-%X-Y-Z set-points:
-
-p = [ 233.85,   269.38,    247, 275.74, 230.93;  % X-axis poistion values
-     -110.82,  -109.65,  9.572, 120.34, 117.58;  % Y-axis poistion values
-      377.33,  -2.7074, 386.96, 6.1789, 372.87];  % Z-axis poistion values
-
-%{
-p = [355, 250;
-    0, 15;
-    135, 135];
-%}
-      
-% Cubic Polynomial interpolation between all setpoints
-P = cubicPoly(p, 10, 3, DEBUG);
-
-% quintic Polynomial interpolation between all setpoints
-%P = quinticPoly(p, 10, 3, DEBUG);
-      
-% linear interpolation between all set-points
-%P = linearInterpolation(p, 1, DEBUG);
-
-% Can increase the number of identical points for greater data resolution when points are far apart.
-% Converts x-y-z points (mm) to encoder values
-viaPts = pointResolution(P, 1, degreesPerTics, DEBUG);
-
+currentPoint = homeForce;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%initialize our temporary matrix to store data to be written to the .csv in
-%a matrix the size of the number of setpoints by the number of returned
-%data elements (15)
-m = zeros(size(viaPts,2),15);
-m(:,:) = 0;
-time = zeros(1, size(viaPts,2));
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%displays a large mark to offset pre-comms debug information
-if DEBUG
-    disp('#######################################################################################################################################');
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-tic %starts an elapse timer
-
-% Iterate through commands for joint values
-%size(matrix_name, 1 (rows) or 2 (columns))
-for k = 1:size(viaPts,2)
+%% autonomous sorting logic
+while routine ~= 666
     
-    %joint 1 set-point packet
-    packet(1) = viaPts(1,k);
+    disp(sprintf('last = %d, routine = %d, next = %d', last, routine, next));
+    currentPoint
     
-    %joint 2 set-point packet
-    packet(4) = viaPts(2,k);
-    
-    %joint 3 set-point packet
-    packet(7) = viaPts(3,k);
-    
-    
-    %Send packet to the server and get the response
-    returnPacket = pp.command(SERV_ID, packet);
-    
-    toc %displays the elapsed time since tic
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    if DATALOG
-        %records the elapsed time since tic
-        time(1,k) = toc; 
-
-        %adds the returned data to the temporary matrix as a row instead of a
-        %column (list)
-        m(k,:) = returnPacket;
-    end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    if DEBUG
-        disp('Sent Packet:');
-        disp(packet);
-        disp('Received Packet:');
-        disp(returnPacket);
-    end
-    
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    %plots a stick model with green spheres for joints, thick blue lines for links,
-    %and a thin red line for path
-    if PLOT
-        %plots links andjoints
-        f1 = stickModel([m(k,1), m(k,4), m(k,7)]*degreesPerTics, degreesPerTics, lab);
-        %plots path
-        if k > 1
-            traceModel([m(k-1,1), m(k-1,4), m(k-1,7),m(k,1), m(k,4), m(k,7)]*degreesPerTics, lab);
-        end
-       
-        quiverModel([m(k,1); m(k,4); m(k,7)]*degreesPerTics, [m(k,2); m(k,5); m(k,8)]*degreesPerTics, 0.025, DEBUG);
+    switch routine
         
-    end
-    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    pause(0.001) %timeit(returnPacket) !FIXME why is this needed?
+%% moves robot to an out of the way position to get ready for a photo
+        case 10
+            %sets desired robot position to photo position
+            desiredPoints = [currentPoint, photoClearance, photo];
+            
+            %updates current robot location
+            currentPoint = photo;
+            
+            %makes sure gripper is open initially
+            gripper = 1;
+            
+            %sets PID position compensation
+            PID_Up = true;
+            
+            last = routine;
+            routine = 105; %build trajectory, quintic interpolation
+            
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% gets desired points and colors from camera
+        case 0
+                    
+            %checks if robot is in photo position
+            if last ~= 10
+                %puts robot in photo position
+                routine = 10;
+                next = 0;
+                
+            else
+                
+                %gets x,y and color data of each point of interest
+                centroids = findCentroidColor(DARK, PLOT_M, PLOT_I, true);
+                               
+                if centroids == [4 0 4]
+                    disp('I am done sorting!');
+                    routine = 666; %terminates program
+                    
+                else
+                    %extracts the first color of the first object
+                    colorFirst = centroids(1,3)
+                    
+                    switch colorFirst
+                        case 0 %empty
+                            disp('I found an empty object');
+                            %kicks out of program because no next routine case set
+                            routine = 666; %terminates program
+
+                        case 4 %red
+                            disp('I found a red object. What do I do?');
+                            %kicks out of program because no next routine case set
+                            routine = 666; %terminates program
+                            
+                        otherwise
+                            %sets the color code for sorting later
+                            colorFirst = centroids(1,3);
+                            %pick up an object and weigh it
+                            last = routine;
+                            routine = 20; %pickup
+                            next = 30; %close gripper
+                    end
+                end
+            end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% picks up an object
+        case 20
+            %waits for arm to stabilize
+            pause(1);
+            
+            %sets up a trajectory between the home position and the object
+            objectLocation = [centroids(1,1); centroids(1,2); -40];
+            
+            %M & M sorting
+            %objectLocation = [centroids(1,1); centroids(1,2); -60];
+            
+            %makes a clearance target
+            objectClearance = [round(centroids(1,1)); round(centroids(1,2)); 0];
+
+            desiredPoints = [currentPoint, objectClearance, objectLocation];
+            
+            %displays the desired points
+            desiredPoints
+            
+            %updates current robot location
+            currentPoint = objectLocation; 
+            
+            last = routine;
+            routine = 105; %build trajectory, quintic interpolation
+            next = 30; %weigh, already set
+            
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% closes gripper
+        case 30
+            %waits for arm to stabilize
+            pause(1);
+            
+            %open gripper
+            gripper = 0;
+            
+            %stays in current position while closing the gripper
+            desiredPoints = currentPoint;
+            
+            last = routine;
+            routine = 100; %stay stationary
+            res = 5; %data resolution
+            next = 1;
+            
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% opens gripper
+        case 31
+            %open gripper
+            gripper = 1;
+            
+            %stays in current position while opening the gripper
+            desiredPoints = currentPoint;
+            
+            last = routine;
+            routine = 100; %stay stationary
+            res = 5; %data resolution
+            next = 0;
+            
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% go to home position for weighing
+        case 11
+            %sets up a trajectory between the objectLocation and the weigh
+            %position
+            desiredPoints = [currentPoint, homeClearance, homeForce];
+            
+            last = routine;
+            routine = 105; %build trajectory, quintic interpolation
+            next = 12;
+            
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% stay at home position to get steady values for the weight of the object
+        case 12
+            %sets up a static trajectory in the weigh position
+            desiredPoints = [homeForce];
+            
+            last = routine;
+            routine = 100; %stationary trajectory, no interpolation
+            res = 10; %data resolution
+            next = 1;
+            
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% determines if an object is heavy or not
+        case 1
+            %checks if arm is in the correct weigh position and moves it there
+            %if it isn't
+            if last ~= 12
+                last = 1;
+                routine = 11;
+                next = 1;
+            else
+                %find average z force over previous stationary
+                avgZForce = calculateForces(mS, degreesPerTics, DEBUG);
+                
+                
+                dlmwrite('avgZForce.csv', avgZForce, '-append');
+                                
+                last = routine;
+                %selects set-down position based on weight and color
+                if avgZForce > 38.5 %heavy
+                    switch colorFirst
+                        case 1 %move arm to heavy yellow drop location
+                            desiredPoints = [homeForce, homeClearance, dropHeavyYellow];
+                            currentPoint = dropHeavyYellow;
+
+                        case 2 %move arm to heavy green drop location
+                            desiredPoints = [homeForce, homeClearance, dropHeavyGreen];
+                            currentPoint = dropHeavyGreen;
+
+                        case 3 %move arm to heavy blue drop location
+                            desiredPoints = [homeForce, homeClearance, dropHeavyBlue];
+                            currentPoint = dropHeavyBlue;
+                            
+                    end
+                    
+                else %light
+                    switch colorFirst
+                        case 1 %move arm to heavy yellow drop location
+                            desiredPoints = [homeForce, homeClearance, dropLightYellow];
+                            currentPoint = dropLightYellow;
+
+                        case 2 %move arm to heavy green drop location
+                            desiredPoints = [homeForce, homeClearance, dropLightGreen];
+                            currentPoint = dropLightGreen;
+
+                        case 3 %move arm to heavy blue drop location
+                            desiredPoints = [homeForce, homeClearance, dropLightBlue];
+                            currentPoint = dropLightBlue;
+                    end
+                end
+                
+                routine = 105; %build trajectory, quintic interpolation
+                next = 31; %opens gripper
+                
+            end
+            
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% AUXILARY: stationary trajectory generation for a single point to collect data
+        case 100
+            %interpolation mode selection: 0 = no interpolation
+            interMode = 0;
+            
+            %number of points between interpolations
+            interPoints = 0;
+            
+            %duration (s) between intermpolations
+            nonLinearInterDuration = 0;
+                       
+            encoderTrajectory = buildTrajectory( desiredPoints, interMode, interPoints, nonLinearInterDuration, res, degreesPerTics, DEBUG);
+            
+            %do not set last because auxilary routines have no trace
+            routine = 200;
+            
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% AUXILARY: trajectory generation for multiple points using qunintic interpolation
+        case 105
+            %interpolation mode selection: 5 = quintic
+            interMode = 5;
+            
+            %number of points between interpolations
+            interPoints = 25;
+            
+            %duration (s) between intermpolations
+            nonLinearInterDuration = 3;
+            
+            %data resolution
+            res = 1;
+            
+            encoderTrajectory = buildTrajectory( desiredPoints, interMode, interPoints, nonLinearInterDuration, res, degreesPerTics, DEBUG);
+            
+            %do not set last because auxilary routines have no trace
+            routine = 200;
+            %do not set next because auxilary routine isn't a logic routine
+            
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% AUXILARY: commands movement
+        case 200
+            tic %starts an elapse timer
+                      
+            [mS, copymS, timeS] = moveArm (encoderTrajectory, gripper, degreesPerTics, axe, lab, GRAVITY_COMP_TEST, PID_Up, DATALOG, PLOT, DEBUG_COMS, DEBUG);
+            
+            %concatenation of core data logging matricies
+            m = [m; mS];
+            copym = [copym; copymS];
+            time = [time, timeS];
+            
+            %do not set last because auxilary routines have no trace
+            routine = next;
+            %do not set next because auxilary routine isn't a logic routine
+            
+    end
 end
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% data logging and post process plotting
 
-if DATALOG
+    %handles data logging and plotting utilities
+    postProcessing(m, copym, time, degreesPerTics, lab, DATALOG, PLOT, DEBUG);
 
-    %writes the temporary encoder matrix data to a .csv file
-    csvwrite('armEncoderValues.csv',m);
-    
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%   save and plot joint angles   %%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    %writes a .csv file for just the arm's joint angles
-    joint1Angles = m(:,1).'*degreesPerTics;
-    joint2Angles = m(:,4).'*degreesPerTics;
-    joint3Angles = m(:,7).'*degreesPerTics;
-    dlmwrite('JointAngles.csv', time, '-append');
-    dlmwrite('JointAngles.csv', joint1Angles, '-append');
-    dlmwrite('JointAngles.csv', joint2Angles, '-append');
-    dlmwrite('JointAngles.csv', joint3Angles, '-append');
-    
-    if PLOT
-        %plots the arm's joint angles over time
-        figure('Position', [0, 50, 864, 864]);
-        plot(time, joint1Angles, 'r-*', time, joint2Angles, 'b--x', time, joint3Angles, 'g-.O', 'LineWidth', 2);
-        title(sprintf('RBE 3001 Lab %d: Joint Angles vs. Time', lab));
-        xlabel('Time (s)');
-        ylabel('Joint Angle (degrees)');
-        legend('Base Joint', 'Elbow Joint', 'Wrist Joint');
-        grid on;       
-    end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%   save and plot joint velocities   %%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    %writes a .csv file for just the arm's joint VELOCITIES
-    joint1Velocities = diff(m(:,1).'*degreesPerTics);
-    joint2Velocities = diff(m(:,4).'*degreesPerTics);
-    joint3Velocities = diff(m(:,7).'*degreesPerTics);
-    timeV = time(1,1:(size(time,2)-1));
-    dlmwrite('JointVelocities.csv', timeV, '-append');
-    dlmwrite('JointVelocities.csv', joint1Velocities, '-append');
-    dlmwrite('JointVelocities.csv', joint2Velocities, '-append');
-    dlmwrite('JointVelocities.csv', joint3Velocities, '-append');
-
-    if PLOT
-        %plots the arm's joint velocities over time
-        figure('Position', [864, 50, 864, 864]);
-        plot(timeV, joint1Velocities, 'r-*', timeV, joint2Velocities, 'b--x', timeV, joint3Velocities, 'g-.O', 'LineWidth', 2);
-        title(sprintf('RBE 3001 Lab %d: Joint Velocities vs. Time', lab));
-        xlabel('Time (s)');
-        ylabel('Joint Velocity (degrees/s)');
-        legend('Base Joint', 'Elbow Joint', 'Wrist Joint');
-        grid on;
-    end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%   save and plot joint accelerations   %%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    %writes a .csv file for just the arm's joint acceleration
-    joint1Accelerations = diff(diff(m(:,1)).'*degreesPerTics);
-    joint2Accelerations = diff(diff(m(:,4)).'*degreesPerTics);
-    joint3Accelerations = diff(diff(m(:,7)).'*degreesPerTics);
-    timeA = time(1,1:(size(time,2)-2));
-    dlmwrite('JointAcclerations.csv', timeA, '-append');
-    dlmwrite('JointAcclerations.csv', joint1Accelerations, '-append');
-    dlmwrite('JointAcclerations.csv', joint2Accelerations, '-append');
-    dlmwrite('JointAcclerations.csv', joint3Accelerations, '-append');
-
-    if PLOT
-        %plots the arm's joint acceleration over time
-        figure('Position', [864, 50, 864, 864]);
-        plot(timeA, joint1Accelerations, 'r-*', timeA, joint2Accelerations, 'b--x', timeA, joint3Accelerations, 'g-.O', 'LineWidth', 2);
-        title(sprintf('RBE 3001 Lab %d: Joint Acclerations vs. Time', lab));
-        xlabel('Time (s)');
-        ylabel('Joint Acceleration (degrees/s^2)');
-        legend('Base Joint', 'Elbow Joint', 'Wrist Joint');
-        grid on;
-    end
-    
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%   save and plot TCP x-y-z  position   %%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    %writes a .csv file for the X-Y-Z position of the TCP
-    Position = zeros(size(m,1),3);
-    for k = 1:size(m,1)
-        Position(k,1:3) = fwkin3001([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], true, DEBUG).';
-    end
-    
-    xPosition = Position(:,1).';
-    yPosition = Position(:,2).';
-    zPosition = Position(:,3).';
-    dlmwrite('X-Y-Z-Position.csv', time, '-append');
-    dlmwrite('X-Y-Z-Position.csv', xPosition, '-append');
-    dlmwrite('X-Y-Z-Position.csv', yPosition, '-append');
-    dlmwrite('X-Y-Z-Position.csv', zPosition, '-append');
-    
-    if PLOT
-        %plots the X-Y-Z Position of the TCP over time
-        figure('Position', [864, 50, 864, 864]);
-        plot(time, xPosition, 'r-*', time, yPosition, 'b--x', time, zPosition, 'g-.O', 'LineWidth', 2);
-        title(sprintf('RBE 3001 Lab %d: X-Y-Z Position of the TCP  vs. Time', lab));
-        xlabel('Time (s)');
-        ylabel('Position of the TCP (mm)');
-        legend('X Position', 'Y Position', 'Z Position');
-        grid on;
-    end
-    
-    if DEBUG
-        disp('Position: X, Y, Z');
-        disp(Position);
-    end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%    save and plot determinant of Jp    %%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-    
-%writes a .csv file for the determinant of Jp
-    detJp = zeros(size(m,1),1);
-    for k = 1:size(m,1)
-        J = jacob0([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], DEBUG);
-        detJp(k,1) = det(J(1:3,:));
-    end
-    
-    det = detJp(:,1).';
-
-    dlmwrite('detJp.csv', time, '-append');
-    dlmwrite('detJp.csv', det, '-append');
-    
-    if PLOT
-        %plots the determinant of Jp over time
-        figure('Position', [50, 50, 864, 864]);
-        plot(time, det, 'r-*', 'LineWidth', 2);
-        title(sprintf('RBE 3001 Lab %d: Determinant of Jacobian Position Matrix (Jp) vs. Time',lab));
-        xlabel('Time (s)');
-        ylabel('Determinant of Jp');
-        legend('Determinant of Jp');
-        grid on;
-    end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%   save and plot TCP x-y-z  velocity   %%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    %writes a .csv file for the X-Y-Z velocity of the TCP using position
-    Velocity = zeros(size(m,1),3);
-    for k = 1:size(m,1)-1
-        Velocity(k,1:3) = fwddiffkin3001([joint1Angles(1,k); joint2Angles(1,k); joint3Angles(1,k)], [joint1Velocities(1,k); joint2Velocities(1,k); joint3Velocities(1,k)], DEBUG).';
-    end
-    
-    xVelocity = Velocity(1:(size(Velocity,1)-1),1).';
-    yVelocity = Velocity(1:(size(Velocity,1)-1),2).';
-    zVelocity = Velocity(1:(size(Velocity,1)-1),3).';
-    dlmwrite('X-Y-Z-Velocity.csv', timeV, '-append');
-    dlmwrite('X-Y-Z-Velocity.csv', xVelocity, '-append');
-    dlmwrite('X-Y-Z-Velocity.csv', yVelocity, '-append');
-    dlmwrite('X-Y-Z-Velocity.csv', zVelocity, '-append');
-    
-    if PLOT
-        %plots the X-Y-Z Velocity of the TCP over time
-        figure('Position', [864, 50, 864, 864]);
-        plot(timeV, xVelocity, 'r-*', timeV, yVelocity, 'b--x', timeV, zVelocity, 'g-.O', 'LineWidth', 2);
-        title(sprintf('RBE 3001 Lab %d: X-Y-Z Velocity of the TCP  vs. Time', lab));
-        xlabel('Time (s)');
-        ylabel('Velocity of the TCP (mm/s)');
-        legend('X Velocity', 'Y Velocity', 'Z Velocity');
-        grid on;
-    end
-    
-    if DEBUG  
-        disp('Velocity: X, Y, Z');
-        disp(Velocity);
-    end  
-    
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-end
-
-% Clear up memory upon termination
-pp.shutdown()
-clear java;
-
+%displays end time of operation
 toc
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
