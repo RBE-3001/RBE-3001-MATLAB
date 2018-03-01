@@ -1,4 +1,4 @@
-function [m, copym, time] = moveArm (v, g, dpt, a, l, dL, p, dC, d, gc_test)
+function [m, copym, time] = moveArm (v, g, dpt, a, l, gT, pU, dL, p, dC, d)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% sets java path
 javaaddpath('../    lib/hid4java-0.5.1.jar');
@@ -58,6 +58,12 @@ lab = l;
 %packet processor (device ID)
 pp = PacketProcessor(7);
 
+%gravity compensation test
+gc_test = gT;
+
+%PID adjustment
+PID_Up = pU;
+
 %logs data
 DATALOG = dL;
 
@@ -69,6 +75,50 @@ DEBUG_COMS = dC;
 
 %debug messages
 DEBUG = d;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PID Constants      Tested Values
+
+%if Arm is going to a vertical position, the PID values get adjusted
+if PID_Up
+    % Alternate Base PID
+    kp_base = 0.002;    % kP_Base = 0.002
+    ki_base = 0.0005;   % kI_Base = 0.0005
+    kd_base = 0.02;     % kD_Base = 0.02
+
+    % Alternate Shoulder PID
+    kp_arm = 0.001;      % kP_Arm = 0.01
+    ki_arm = 0.0035;    % kI_Arm = 0.0015
+    kd_arm = 0.05;      % kD_Arm = 0.08
+
+    % Alternate Wrist PID
+    kp_wrist = 0.00045; % kP_Wrist = 0.00075
+    ki_wrist = 0.001;  % kI_Wrist = 0.0005
+    kd_wrist = 0.02;    % kD_Wrist = 0.04
+    
+else
+    % Base PID
+    kp_base = 0.002;    % kP_Base = 0.002
+    ki_base = 0.0005;   % kI_Base = 0.0005
+    kd_base = 0.02;     % kD_Base = 0.02
+
+    % Shoulder PID
+    kp_arm = 0.005;      % kP_Arm = 0.01
+    ki_arm = 0.0015;    % kI_Arm = 0.0015
+    kd_arm = 0.01;      % kD_Arm = 0.08
+
+    % Wrist PID
+    kp_wrist = 0.00045; % kP_Wrist = 0.00075
+    ki_wrist = 0.0005;  % kI_Wrist = 0.0005
+    kd_wrist = 0.04;    % kD_Wrist = 0.04
+end
+
+% Gravity Compensation Test (Sets all PID Values to 0)
+if (gc_test)
+    kp_base = 0; ki_base = 0; kd_base = 0;
+    kp_arm = 0 ;ki_arm = 0; kd_arm = 0;
+    kp_wrist = 0; ki_wrist = 0; kd_wrist = 0;
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% server selection
@@ -122,13 +172,16 @@ for k = 1:size(viaPts,2)
     packet(15) = kd_wrist; % kD Constant
     
     %actuates the gripper: 1 opens gripper and 0 closes gripper
-    packet(16) = gripper;
+    packet(2) = gripper; %supposed to be packet 16, but eclipse only reads the first 15 packets
     
     
     %Send packet to the server and get the response
     returnPacket = pp.command(SERV_ID, packet);
     
-    toc %displays the elapsed time since tic
+    %displays the elapsed time since tic
+    if DEBUG
+        toc 
+    end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% critical data logging
@@ -173,6 +226,9 @@ for k = 1:size(viaPts,2)
     %false = velocity
     FORCE = true;
 
+    %sets a specific figure for live plotting
+    figure(2);
+    
     %handles all live plotting: robot, trajectory, and force/velocity vector
     livePlotModel(m, k, degreesPerTics, lab, axe, forceScale, velocityScale, FORCE, PLOT, DEBUG);   
     

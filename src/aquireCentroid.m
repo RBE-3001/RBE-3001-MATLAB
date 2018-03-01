@@ -34,14 +34,14 @@ DARK = k;
 PLOT_M = w;
 
 %plot
-PLOT = p;
+PLOT_I = p;
 
 %debug
 DEBUG = d;
 
 if PLOT_M
-    %shows original image
-    figure;
+    %shows original image, always in figure 1
+    figure(1);
     imshow(img);
     hold on
 end
@@ -52,8 +52,8 @@ end
 h = ones(5,5) / 25;
 img2 = imfilter(img, h);
 
-if DEBUG & PLOT
-    figure;
+if DEBUG & PLOT_I
+    figure(3);
     imshow(img2);
 end
 
@@ -69,8 +69,8 @@ else
     img3 = createMask2(img2);
 end
 
-if DEBUG & PLOT
-    figure;
+if DEBUG & PLOT_I
+    figure(4);
     imshow(img3);
 end
 
@@ -79,10 +79,14 @@ end
 %remove tiny bits
 LB = 750;
 UB = 2500;
+
+%M & M sorting
+%LB = 75;
+%UB = 500;
 img4 = xor(bwareaopen(img3, LB), bwareaopen(img3, UB));
 
-if DEBUG & PLOT
-    figure;
+if DEBUG & PLOT_I
+    figure(5);
     imshow(img4);
     hold on;
 end
@@ -93,7 +97,7 @@ end
 [B,L] = bwboundaries(img4,'noholes');
 
 % Display the label matrix and draw each boundary
-if PLOT
+if PLOT_I
     imshow(label2rgb(L, @jet, [.5 .5 .5]));
 end
 
@@ -101,8 +105,9 @@ end
 for k = 1:length(B)
   boundary = B{k};
   
-  if PLOT
-  plot(boundary(:,2), boundary(:,1), 'w', 'LineWidth', 2)
+  if PLOT_I
+      figure(5)
+      plot(boundary(:,2), boundary(:,1), 'w', 'LineWidth', 2)
   end
   
 end
@@ -112,7 +117,10 @@ stats = regionprops(L,'Area','Centroid');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %threshold of % likelyhood that an object is a circle
-threshold = 0.50;
+threshold = 0.60;
+
+%M & M sorting
+%threshold = 0.85;
 
 %initialize centroid matrix's minimum size
 centM = zeros(length(B),2);
@@ -146,24 +154,49 @@ for k = 1:length(B)
   
   % mark objects above the threshold with a black circle
   if metric > threshold
-    centroid = round(stats(k).Centroid);
-    centM(i,:) = [centroid(1), centroid(2)];
-    i = i + 1;
-    numCircles = i - 1;
+      
+      %gets centroid data
+      centroid = round(stats(k).Centroid);
+      
+      %converts centroid data to robot reference frame
+      cent = mn2xy(centroid(1), centroid(2), DEBUG);
+           
+      %gabs x and y of converted centroid
+      centX = cent(1,1);
+      centY = cent(1,2);
+      
+      %sets acceptable centroid bounds      
+      xBoundUpper = 275;
+      xBoundLower = 0;
+      yBoundUpper = 125;
+      yBoundLower = -125;
+      
+      %sets booleans for conditional statement
+      xBound = centX < xBoundUpper & centX > xBoundLower;
+      yBound = centY < yBoundUpper & centY > yBoundLower
+      
+      %checks that centroids are within a certain bound
+      if xBound & yBound
+              centM(i,:) = [centroid(1), centroid(2)];
+              i = i + 1;
+              numCircles = i - 1;
+      end
     
     if DEBUG
-        disp(sprintf('threshold = %f, metric = %f, length(B) = %d, Number of Circles: %d', threshold, metric, length(B), numCircles));
+        disp(sprintf('centX = %f, centY = %f, threshold = %f, metric = %f, length(B) = %d, Number of Circles: %d', centX, centY, threshold, metric, length(B), numCircles));
         centM
     end
     
     if PLOT_M
+        figure(1);
         %plots centroid locations of circles
         plot(centroid(1),centroid(2),'ko');
     end
     
   end
   
-  if PLOT
+  if PLOT_I
+      figure(5)
       text(boundary(1,2)-35,boundary(1,1)+13,metric_string,'Color','y','FontSize',12,'FontWeight','bold');
   end
  

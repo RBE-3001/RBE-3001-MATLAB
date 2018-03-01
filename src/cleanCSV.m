@@ -15,6 +15,7 @@ delete JointAcceletations.csv;
 delete .Jp.csv;
 delete JointTorque.csv;
 delete averageLoadCell.csv;
+delete avgZForce.csv;
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

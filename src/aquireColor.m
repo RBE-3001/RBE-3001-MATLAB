@@ -34,12 +34,12 @@ d = true;
 radius = r;
 
 %plot
-PLOT = p;
+PLOT_I = p;
 
 %debug
 DEBUG = d;
 
-if DEBUG & PLOT
+if DEBUG & PLOT_I
     figure;
     imshow(img);
 end

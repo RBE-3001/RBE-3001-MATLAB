@@ -1,36 +1,49 @@
 function centroids = findCentroidColor (k, w, p, d)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   test data   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
+%% test data  
+%{
 close all; clear all; clc;
 
 %lighting conditions (dark = true, bright = false)
-k = false;
+k = true;
 
 %marker plot
 w = true;
 
 %plot
-p = false;
+p = true;
 
 %debug
-d = false;
-%
+d = true;
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% variable initialization
 
+%lighting conditions (dark = true, bright = false)
 DARK   = k;
+
+%marker plot
 PLOT_M = w;
-PLOT   = p;
+
+%plots extra images or graphs that are good for debugging
+PLOT_I   = p;
+
+%debug messages
 DEBUG  = d;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% get image from the camera
 
 %gets image
 image = aquireImage;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% finds centroids of round objects
 %finds the centroids of the round objects in the image
-iCentroids = aquireCentroid(image, DARK, PLOT_M, PLOT, DEBUG);
+iCentroids = aquireCentroid(image, DARK, PLOT_M, PLOT_I, DEBUG);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% finds the color of the centroids
 %checks whether there are objects
 if iCentroids(1,:) == [40 4]
     %writes special error code to output if no objects
@@ -42,13 +55,21 @@ else
     %converts centroid image coordinates to robot base-frame coordiates
     centroids = zeros(size(iCentroids,1),3);
     for i = 1:size(iCentroids,1)
-        centroids(i,1:2) = mn2xy(iCentroids(i,1), iCentroids(i,2), true);
+        centroids(i,1:2) = mn2xy(iCentroids(i,1), iCentroids(i,2), DEBUG);
     end
     
-    %aquires the colors of the objects
-    LAB = aquireColor(image, iCentroids, 14, PLOT, false);
-    
     if true
+        centroids
+    end
+    
+    
+    %aquires the colors of the objects
+    LAB = aquireColor(image, iCentroids, 14, PLOT_I, false);
+    
+    %M & M sorting
+    %LAB = aquireColor(image, iCentroids, 7, PLOT_I, false);
+    
+    if DEBUG
         LAB
     end
     
@@ -80,3 +101,5 @@ else
 end
 
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

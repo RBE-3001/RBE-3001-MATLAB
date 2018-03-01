@@ -35,20 +35,21 @@ try
     if DEBUG
         disp(sprintf('theta1 = %f, theta2 = %f, theta3 = %f', theta1, theta2, theta3));
     end
-    
+    %{
     if theta1 > 90 || theta1 < -90
         msg = sprintf('theta1 = %f is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.', theta1, px, py, pz);
         error();
     elseif theta2 > 135 || theta2 < -15
         msg = sprintf('theta2 = %f is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.', theta2, px, py, pz);
         error();
-    elseif theta3 > 130 || theta3 < -130
+    elseif theta3 > 140 || theta3 < -140
         msg = sprintf('theta3 = %f is out of bounds. Desired position x = %f, y = %f, z = %f, is out of reach.', theta3, px, py, pz);
         error();
     else
         S = [theta1 ; theta2; theta3];
     end
-    
+    %}
+        S = [theta1 ; theta2; theta3];
 catch
     %input errors lead to this message
     error(msg);
