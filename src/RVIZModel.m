@@ -1,3 +1,4 @@
+%% Imports
 javaaddpath('../lib/hid4java-0.5.1.jar');
 
 import org.hid4java.*;
@@ -5,8 +6,20 @@ import org.hid4java.event.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.lang.*;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Instructions 
+%{
 
-
+1. Install ROS (Kinetic) on your system
+2. Pull ROS Repository found here: 
+https://github.com/RBE-3001/RBE-3001-ROSVisualization
+3. Run catkin_make in the ROS repository
+4. roslaunch robotarm.launch
+5. Run rosinit on Matlab Command Window
+6. Run this code on Matlab
+%}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Code
 pp = PacketProcessor(7);
 values = zeros(15, 1, 'single');
 sinWaveInc = 10.0;
@@ -50,4 +63,4 @@ send(LinkPublisher, message);%Send Position Data to ROS
 end
 pp.shutdown()
 clear java;
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
